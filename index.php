@@ -15,6 +15,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
 <link rel="manifest" href="/manifest.json">
+<link rel='stylesheet' id='vc4a-index-css'  href='dist/css/style.css' type='text/css' media='all' />
 <meta name="msapplication-TileColor" content="#ffffff">
 <meta name="msapplication-TileImage" content="img/ms-icon-144x144.png">
 <meta name="theme-color" content="#ffffff">
@@ -23,6 +24,7 @@
 <body>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.3.0/d3-annotation.min.js"></script>
     <script src="node_modules/datamaps/dist/datamaps.world.min.js"></script>
     <div id="container" style="position: relative; width: 90%; max-height: 450px;"></div>
     <script>
@@ -40,72 +42,74 @@
             height: 600,
             width: null,
             responsive: true,
+            geographyConfig: {            
+                borderWidth: 2,
+                borderOpacity: 1,
+                borderColor: '#fdfdfd',
+                popupTemplate: function(geography, data) { //this function should just return a string
+                  return '<div class="hoverinfo"><strong>' + data.info + '</strong></div>';
+                },
+                popupOnHover: true, //disable the popup while hovering
+                highlightOnHover: true,
+                highlightFillColor: '#40aa34',
+                highlightBorderColor: '#fdfdfd',
+                highlightBorderWidth: 2,
+                highlightBorderOpacity: 1
+            },
+            dataType: 'json',
+            dataUrl: 'data/vc4a.json', //if not null, datamaps will attempt to fetch this based on dataType ( default: json )
+            data: {},
             fills: {
-                defaultFill: '#dddddd',
-                major: '#34b233',
-                medium: '#0fa0fa',
-                minor: '#bada55'
-        },
-        geographyConfig: {
-            dataUrl: null, //if not null, datamaps will fetch the map JSON (currently only supports topojson)
-            borderWidth: 1,
-            borderOpacity: 1,
-            borderColor: '#FDFDFD',
-            popupTemplate: function(geography, data) { //this function should just return a string
-              return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
+                defaultFill: '#cbcbcb',
+                vc4a_red: '#df0921',
+                vc4a_grn: '#40aa34',
+                vc4a_yel: '#ffe504',
+                vc4a_brd: '#2e9e2d',
+                vc4a_blu: '#1b98d5',
+                vc4a_blk: '#000000'
             },
-            popupOnHover: true, //disable the popup while hovering
-            highlightOnHover: true,
-            highlightFillColor: '#bada55',
-            highlightBorderColor: '#34b233',
-            highlightBorderWidth: 1,
-            highlightBorderOpacity: 1
-        },
-        dataType: 'json',
-        dataUrl: null, //if not null, datamaps will attempt to fetch this based on dataType ( default: json )
-        data: {
-            // NGA: {fillKey: 'major' },
-            // KEN: {fillKey: 'major' },
-            // GHA: {fillKey: 'major' },
-            // EGY: {fillKey: 'medium'},
-            // ZAF: {fillKey: 'medium' },
-            // MDG: {fillKey: 'minor' }       
-        },
-        setProjection: function (element) {
-            var projection = d3.geo.mercator()
-                .center([15.7557679, 13.31369]) // E Latitude, N Longitude
-                .rotate([20.4, 0])
-                .scale(500);
-            var path = d3.geo.path().projection(projection);
-            return { path: path, projection: projection };
-            },
-        done: function(datamap) {
-            datamap.svg.call(d3.behavior.zoom().on("zoom", redraw));
-            function redraw() {
-                datamap.svg.selectAll("g").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            setProjection: function (element) {
+                var projection = d3.geo.mercator()
+                    .center([15.7557679, 13.31369]) // E Latitude, N Longitude
+                    .rotate([20.4, 0])
+                    .scale(500);
+                var path = d3.geo.path().projection(projection);
+                return { path: path, projection: projection };
+                },
+            done: function(datamap) {
+                datamap.svg.call(d3.behavior.zoom().on("zoom", redraw));
+                function redraw() {
+                    datamap.svg.selectAll("g").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+                }
+                datamap.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
+                    console.log(geography.properties.name);
+
+                    dataUrl: 'https://api.vc4a.com/v1/fundraising/stages.json';
+                    dataType: 'json';
+                
+                    
+                });
             }
-            datamap.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
-                alert(geography.properties.name);
-            });
-        }
         })      
 
         //bubbles, custom popup on hover template
-        map.bubbles([
-           {name: 'Hot', latitude: 21.32, longitude: 5.32, radius: 10, fillKey: 'major'},
-           {name: 'Chilly', latitude: -25.32, longitude: 120.32, radius: 18, fillKey: 'medium'},
-           {name: 'Hot again', latitude: 21.32, longitude: -84.32, radius: 8, fillKey: 'minor'},
+        // map.bubbles([
+        //    {name: 'Hot', latitude: 21.32, longitude: 5.32, radius: 10, fillKey: 'major'},
+        //    {name: 'Chilly', latitude: -25.32, longitude: 120.32, radius: 18, fillKey: 'medium'},
+        //    {name: 'Hot again', latitude: 21.32, longitude: -84.32, radius: 8, fillKey: 'minor'},
 
-           ], {
-               popupTemplate: function(geo, data) {
-                 return "<div class='hoverinfo'>It is " + data.name + "</div>";
-             }
-         })
+        //    ], {
+        //        popupTemplate: function(geo, data) {
+        //          return "<div class='hoverinfo'>It is " + data.name + "</div>";
+        //      }
+        //  })
 
-        // Alternatively with d3
+        // Resize responsive window with d3
         d3.select(window).on('resize', function() {
             map.resize();
         });
+
+
 
     </script>
 </body>

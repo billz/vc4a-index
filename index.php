@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <head>
 <title>VC4A Index (Beta)</title>
+
 <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
@@ -14,7 +15,6 @@
 <body>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.3.0/d3-annotation.min.js"></script>
     <script src="node_modules/datamaps/dist/datamaps.world.min.js"></script>
     <div id="container" style="position: relative; width: 90%; max-height: 450px;"></div>
     <script>

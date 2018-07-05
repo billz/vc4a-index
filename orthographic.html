@@ -70,7 +70,7 @@ svg.append("rect")
     .attr("class", "background")
     .attr("width", width)
     .attr("height", height)
-    .on("click", reset);
+    //.on("click", reset);
 
 var zoneTooltip = d3.select("div#map").append("div").attr("class", "zoneTooltip"),
 infoLabel = d3.select("div#map").append("div").attr("class", "infoLabel");
@@ -83,152 +83,157 @@ queue()
     .defer(d3.tsv, "data/world-110m-country-names.tsv")
     .await(ready)
 
-function ready(error, world, countryData) {
-  if (error) throw error;
-  
-  var countryById = {},
-  countries = topojson.feature(world, world.objects.countries).features;
 
-  // Adding countries by name
-  countryData.forEach(function(d) {
-    countryById[d.id] = d.name;
-  });
-
-  // Adding water
-  g.append("path")
-    .datum({type: "Sphere"})
-    .attr("class", "water")
-    .attr("d", path);
-
-  // Draw countries on the globe
-  var world = g.selectAll("path")
-  .data(countries)
-  .enter().append("path")
-  .attr("overflow", "hidden")
-  .attr("class", "mapData")
-  .attr("d", path)
-  .classed("ortho", ortho = true)
-  .on("click", clicked)
-
-  //Drag event
-  world.call(d3.behavior.drag()
-    .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
-    .on("drag", function() {
-      var λ = d3.event.x * sens,
-      φ = -d3.event.y * sens,
-      rotate = projection.rotate();
-
-      //Set limits for rotation
-      φ = φ > 10 ? 10 :
-      φ < -10 ? -10 :
-      φ;
-      // λ = λ > 10 ? 10 :
-      // λ < -10 ? -10 :
-      // λ;
-      projection.rotate([λ, φ]);
-      g.selectAll("path.ortho").attr("d", path);
-      g.selectAll(".focused").classed("focused", focused = false);
-    }))
-
-  //Events processing
-  world.on("mouseover", function(d) {
-    if (ortho === true) {
-      infoLabel.text(countryById[d.id])
-      .style("display", "inline");
-    } else {
-      zoneTooltip.text(countryById[d.id])
-      .style("left", (d3.event.pageX + 7) + "px")
-      .style("top", (d3.event.pageY - 15) + "px")
-      .style("display", "block");
-    }
-  })
-  .on("mouseout", function(d) {
-    if (ortho === true) {
-      infoLabel.style("display", "none");
-    } else {
-      zoneTooltip.style("display", "none");
-    }
-  })
-
-  //Adding extra data when focused
-  function focus(d) {
-    if (focused === d) return reset();
-    g.selectAll(".focused").classed("focused", false);
-    d3.select(this).classed("focused", focused = d);
-  }
-
-  function reset() {
-    g.selectAll(".focused").classed("focused", focused = false);
-    infoLabel.style("display", "none");
-    zoneTooltip.style("display", "none");
-  }
-
-
+function defaultRotate() {
+    d3.transition()
+    .duration(1500)
+    .tween("rotate", function() {
+        var r = d3.interpolate(projection.rotate(), [0, 0]);
+        return function(t) {
+            projection.rotate(r(t));
+            g.selectAll("path").attr("d", path);
+        };
+    })
 };
 
-function clicked(d) {
-  if (active.node() === this) return reset();
-  active.classed("active", false);
-  active = d3.select(this).classed("active", true);
-  
-  // Clicked on feature:
-  var p = d3.geo.centroid(d);
-  var id = d.id;
-  console.log(id);
-  
-  // Store the current rotation and scale:
-  var currentRotate = projection.rotate();
-  var currentScale = projection.scale();
-  
-  // Calculate the future bounding box after applying a rotation:
-  projection.rotate([-p[0], -p[1]]);
-  path.projection(projection);
-  
-  // calculate the scale and translate required:
-  var b = path.bounds(d);
-  var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/2), (b[1][1] - b[0][1]) / (height/2));
-  var nextRotate = projection.rotate();
+function ready(error, world, countryData) {
+    if (error) throw error;
+    
+    var countryById = {},
+    countries = topojson.feature(world, world.objects.countries).features;
 
-  // Update the map:
-  d3.selectAll("path")
-   .transition()
-   .attrTween("d", function(d) {
-      var r = d3.interpolate(currentRotate, nextRotate);
-      var s = d3.interpolate(currentScale, nextScale);
-        return function(t) {
-          projection
-            .rotate(r(t))
-            .scale(s(t));
-          path.projection(projection);
-          return path(d);
+    // Add countries by name
+    countryData.forEach(function(d) {
+        countryById[d.id] = d.name;
+    });
+
+    // Add oceans
+    g.append("path")
+        .datum({type: "Sphere"})
+        .attr("class", "water")
+        .attr("d", path);
+
+    // Draw countries on the globe
+    var world = g.selectAll("path")
+      .data(countries)
+      .enter().append("path")
+      .attr("overflow", "hidden")
+      .attr("class", "mapData")
+      .attr("d", path)
+      .classed("ortho", ortho = true)
+
+    // Drag event
+    world.call(d3.behavior.drag()
+        .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
+        .on("drag", function() {
+            var λ = d3.event.x * sens,
+            φ = -d3.event.y * sens,
+            rotate = projection.rotate();
+
+            //Set limits for rotation
+            φ = φ > 10 ? 10 :
+            φ < -10 ? -10 :
+            φ;
+            // λ = λ > 10 ? 10 :
+            // λ < -10 ? -10 :
+            // λ;
+            projection.rotate([λ, φ]);
+            g.selectAll("path.ortho").attr("d", path);
+            g.selectAll(".focused").classed("focused", focused = false);
+        }))
+
+    // Events processing
+    world.on("mouseover", function(d) {
+      if (ortho === true) {
+          infoLabel.text(countryById[d.id])
+          .style("display", "inline");
+      } else {
+          zoneTooltip.text(countryById[d.id])
+          .style("left", (d3.event.pageX + 7) + "px")
+          .style("top", (d3.event.pageY - 15) + "px")
+          .style("display", "block");
+      }
+    })
+    .on("mouseout", function(d) {
+        if (ortho === true) {
+            infoLabel.style("display", "none");
+        } else {
+            zoneTooltip.style("display", "none");
         }
-   })
-   .duration(1000);
+    })
+    .on("click", function(d) {        
+        if (focused === d) return reset();
+        g.selectAll(".focused").classed("focused", false);
+        d3.select(this).classed("focused", focused = d);
+        infoLabel.text(countryById[d.id])
+        .style("display", "inline");
 
-}
+        // Clicked on feature
+        var p = d3.geo.centroid(d);
+        console.log(countryById[d.id]);
+        
+        // Store the current rotation and scale
+        var currentRotate = projection.rotate();
+        var currentScale = projection.scale();
+        
+        // Calculate the future bounding box after applying a rotation
+        projection.rotate([-p[0], -p[1]]);
+        path.projection(projection);
+        
+        // calculate the scale and translate required
+        var b = path.bounds(d);
+        var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/2), (b[1][1] - b[0][1]) / (height/2));
+        var nextRotate = projection.rotate();
 
-function reset() {
-  active.classed("active", false);
-  active = d3.select(null);
-  
-  g.selectAll(".focused").classed("focused", focused = false);
-  infoLabel.style("display", "none");
-  zoneTooltip.style("display", "none");
+        // Update the map
+        d3.selectAll("path")
+         .transition()
+         .attrTween("d", function(d) {
+              var r = d3.interpolate(currentRotate, nextRotate);
+              var s = d3.interpolate(currentScale, nextScale);
+                  return function(t) {
+                      projection
+                          .rotate(r(t))
+                          .scale(s(t));
+                      path.projection(projection);
+                      return path(d);
+                  }
+         })
+         .duration(1000);
+    });
 
-  d3.selectAll("path")
-    .transition()
-      .attrTween("d", function(d) {
-      var s = d3.interpolate(projection.scale(), 500);
-        return function(t) {
-          projection
-            .scale(s(t));
-          path.projection(projection);
-          return path(d);
-        }
-     })
-    .duration(1000);
+    // Add extra data when focused
+    function focus(d) {
+        if (focused === d) return reset();
+        g.selectAll(".focused").classed("focused", false);
+        d3.select(this).classed("focused", focused = d);
+    }
 
-}
+    function reset() {
+        active.classed("focused", false);
+        active = d3.select(null);
+        
+        g.selectAll(".focused").classed("focused", focused = false);
+        infoLabel.style("display", "none");
+        zoneTooltip.style("display", "none");
+
+        d3.selectAll("path")
+            .transition()
+            .attrTween("d", function(d) {
+            var r = d3.interpolate(projection.rotate(), [-15, 0]);
+            var s = d3.interpolate(projection.scale(), 500);
+                return function(t) {
+                    projection
+                        .scale(s(t))
+                        .rotate(r(t));
+                    path.projection(projection);
+                    return path(d);
+                }
+           })
+          .duration(1000);
+    }
+
+};
 
 
 </script>

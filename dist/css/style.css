@@ -1,93 +1,118 @@
 body{
-    background-color: whitesmoke;
+    background-color: #fcfcfa;
  }
 
+
+#map {
+  position: relative;
+}
+
 svg {
-    background-color: whitesmoke;
-    font-family: 'Lato';
+  background: #fcfcfa;
+  pointer-events: all;
 }
 
-.annotation-note-title, text.title {
-  font-weight: bold;
+.stroke {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1px;
 }
 
-text.title {
-  font-size: 1.2em;
+.fill {
+  fill: #f2f2f2;
 }
 
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-width: .5px;
+  stroke-opacity: .5;
+}
 
+.mapData {
+  fill: darkgrey;
+}
 
-
-/* d3-tip */
-  .names {
+.boundary {
   fill: none;
   stroke: #fff;
+  stroke-width: .5px;
+}
+
+
+
+.zone {
+  stroke-width: 1.5px;
   stroke-linejoin: round;
-  }
-
-/* Tooltip CSS */
-.d3-tip {
-line-height: 1.5;
-font-weight: 400;
-font-family:"avenir next", Arial, sans-serif;
-padding: 6px;
-background: rgba(0, 0, 0, 0.6);
-color: #FFA500;
-border-radius: 1px;
-pointer-events: none;
+  cursor: pointer;
 }
 
-/* Creates a small triangle extender for the tooltip */
-.d3-tip:after {      
-  box-sizing: border-box;
-  display: inline;
-  font-size: 8px;
-  width: 100%;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.6);
+.zoneTooltip {
   position: absolute;
+  display: none;
   pointer-events: none;
-  
+  background: #fff;
+  padding: 3px;
+  text-align: left;
+  border: solid #ccc 1px;
+  color: #666;
+  font-size: 12px;
+  font-family: sans-serif;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;  
 }
 
-/* Northward tooltips */
-.d3-tip.n:after {
-  content: "\25BC";
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
-  text-align: center;
+.infoLabel {   
+  position: absolute;
+  bottom: 15px;
+  left: 10px;
+  display: none;
+  border: solid #ccc 1px;
+  color: #666;
+  background: #FFFFFF;    
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0px 0px 3px #66C2FF;
+  -moz-box-shadow: 0px 0px 3px #66C2FF;
+  box-shadow: 0px 0px 3px #66C2FF;
+  text-align: left;            
+  padding: 2px;      
+  font-size: 12px;
+  font-family: sans-serif; 
+  pointer-events: none;       
 }
 
-/* Eastward tooltips */
-.d3-tip.e:after {
-  content: "\25C0";
-  margin: -4px 0 0 0;
-  top: 50%;
-  left: -8px;
+.infoLabel span {
+  margin: 0px 5px;
 }
 
-/* Southward tooltips */
-.d3-tip.s:after {
-  content: "\25B2";
-  margin: 0 0 1px 0;
-  top: -8px;
-  left: 0;
-  text-align: center;
+.mapData {
+  fill: #a9a9a9;
+  stroke: #000000;
+  stroke-width: 1px;
 }
 
-/* Westward tooltips */
-.d3-tip.w:after {
-  content: "\25B6";
-  margin: -4px 0 0 -1px;
-  top: 50%;
-  left: 100%;
+.ortho {
+  fill: #a9a9a9;
+  stroke: #fff;
+  stroke-width: 1.5px;  
 }
 
-/*    text{
-  pointer-events:none;
-}*/
-
-.details{
-  color:white;
+.mapData:hover {
+  fill: #1b98d5;
 }
+
+.focused {
+  fill: #ffe504;
+}
+
+
+
+
+
+
+
+
+

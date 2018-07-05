@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<head>
+<title>VC4A Index (Beta)</title>
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel='stylesheet' id='vc4a-index-css'  href='dist/css/style.css' type='text/css' media='all' />
+</head>
+<meta charset="utf-8">
+<body>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.0.0/d3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.3.0/d3-annotation.min.js"></script>
+<script src="d3-tip.js"></script>
+<script>
+
+var format = d3.format(",");
+
+// Set tooltips
+var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d) {
+        return "<strong>Country: </strong><span class='details'>" + d.properties.name + "<br></span>" + "<strong>Population: </strong><span class='details'>" + format(d.population) +"</span>";
+    })
+
+var margin = {top: 0, right: 0, bottom: 0, left: 0},
+    width = 1260 - margin.left - margin.right,
+    height = 680 - margin.top - margin.bottom;
+
+var color = d3.scaleThreshold()
+    .domain([10000,100000,500000,1000000,5000000,10000000,50000000,100000000,500000000,1500000000])
+    .range(["rgb(247,251,255)", "rgb(222,235,247)", "rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(66,146,198)","rgb(33,113,181)","rgb(8,81,156)","rgb(8,48,107)","rgb(3,19,43)"]);
+
+var path = d3.geoPath();
+
+var svg = d3.select("body")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append('g')
+    .attr('class', 'map');
+
+var projection = d3.geoMercator()
+    .scale(500)
+    .translate( [width / 2.5, height / 1.9 ]);
+
+var path = d3.geoPath().projection(projection);
+
+svg.call(tip);
+
+queue()
+    .defer(d3.json, "data/africa_continent.json")
+    .defer(d3.tsv, "data/world_population.tsv")
+    .await(ready);
+
+function ready(error, data, population) {
+    var populationById = {};
+
+    population.forEach(function(d) { populationById[d.id] = +d.population; });
+    data.features.forEach(function(d) { d.population = populationById[d.id] });
+
+    svg.append("g")
+        .attr("class", "countries")
+        .selectAll("path")
+        .data(data.features)
+        .enter().append("path")
+        .attr("d", path)
+        .style("fill", function(d) { return color(populationById[d.id]); })
+        .style('stroke', 'white')
+        .style('stroke-width', 1.5)
+        .style("opacity",0.8)
+        // tooltips
+        .style("stroke","white")
+        .style('stroke-width', 0.3)
+        .on('mouseover',function(d){
+            tip.show(d);
+            d3.select(this)
+              .style("opacity", 1)
+              .style("stroke","white")
+              .style("stroke-width",3);
+        })
+        .on('mouseout', function(d){
+            tip.hide(d);
+            d3.select(this)
+              .style("opacity", 0.8)
+              .style("stroke","white")
+              .style("stroke-width",0.3);
+        });
+
+  svg.append("path")
+      .datum(topojson.mesh(data.features, function(a, b) { return a.id !== b.id; }))
+      .attr("class", "names")
+      .attr("d", path);
+}
+
+
+
+  const type = d3.annotationCalloutCircle
+  const annotations = [{
+      note: {
+          label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
+          title: "Annotations :)"
+      },
+      //can use x, y directly instead of data
+      //data: { date: "18-Sep-09", close: 185.02 },
+      x: 100, y: 100,
+      dx: 162, dy: 137,
+      
+      type: d3.annotationCalloutElbow,
+      connector: { end: "arrow" },
+      subject: {
+          radius: 50,
+          radiusPadding: 5
+      }
+  }]
+
+  const parseTime = d3.timeParse("%d-%b-%y")
+  const timeFormat = d3.timeFormat("%d-%b-%y")
+
+  const x = d3.scaleTime().range([0, 800])
+  const y = d3.scaleLinear().range([300, 0])
+
+  const makeAnnotations = d3.annotation()
+      .notePadding(15)
+      .type(type)
+      //accessors & accessorsInverse not needed
+      //if using x, y in annotations JSON
+      .accessors({
+        x: d => x(parseTime(d.date)),
+        y: d => y(d.close)
+      })
+      .accessorsInverse({
+         date: d => timeFormat(x.invert(d.x)),
+         close: d => y.invert(d.y)
+      })
+      .annotations(annotations)
+
+  d3.select("svg")
+      .append("g")
+      .attr("class", "annotation-group")
+      .call(makeAnnotations)
+
+
+</script>
+</body>
+</html>

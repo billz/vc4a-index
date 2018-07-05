@@ -8,32 +8,6 @@
 <link rel='stylesheet' id='vc4a-index-css'  href='dist/css/style.css' type='text/css' media='all' />
 </head>
 <meta charset="utf-8">
-<style>
-
-.background {
-  fill: none;
-  pointer-events: all;
-}
-
-.feature, {
-  fill: #ccc;
-  cursor: pointer;
-}
-
-.feature.active {
-  fill: orange;
-}
-
-.mesh,.land {
-  fill: #cbcbcb;
-  stroke: #fff;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.water {
-  fill: #fcfcfa;
-}
-</style>
 <body>
 <!-- start -->
 <div id="map">
@@ -42,6 +16,7 @@
 <script src="https://d3js.org/queue.v1.min.js"></script>
 <script>
 
+// Set defaults 
 var mapWidth = 1260,
     mapHeight = 680,
     focused = false,
@@ -53,6 +28,7 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
     height = mapHeight - margin.top - margin.bottom;
     active = d3.select(null);
 
+// Create map projection 
 var projection = d3.geo.orthographic()
     .scale(500)
     .rotate([-15, 0])
@@ -66,35 +42,17 @@ var svg = d3.select("div#map").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-svg.append("rect")
-    .attr("class", "background")
-    .attr("width", width)
-    .attr("height", height)
-    //.on("click", reset);
-
 var zoneTooltip = d3.select("div#map").append("div").attr("class", "zoneTooltip"),
 infoLabel = d3.select("div#map").append("div").attr("class", "infoLabel");
 
 var g = svg.append("g")
     .style("stroke-width", "1.5px");
 
+// Queue external map data
 queue()
     .defer(d3.json, "data/world-110m.json")
     .defer(d3.tsv, "data/world-110m-country-names.tsv")
     .await(ready)
-
-
-function defaultRotate() {
-    d3.transition()
-    .duration(1500)
-    .tween("rotate", function() {
-        var r = d3.interpolate(projection.rotate(), [0, 0]);
-        return function(t) {
-            projection.rotate(r(t));
-            g.selectAll("path").attr("d", path);
-        };
-    })
-};
 
 function ready(error, world, countryData) {
     if (error) throw error;
@@ -122,27 +80,7 @@ function ready(error, world, countryData) {
       .attr("d", path)
       .classed("ortho", ortho = true)
 
-    // Drag event
-    world.call(d3.behavior.drag()
-        .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
-        .on("drag", function() {
-            var λ = d3.event.x * sens,
-            φ = -d3.event.y * sens,
-            rotate = projection.rotate();
-
-            //Set limits for rotation
-            φ = φ > 10 ? 10 :
-            φ < -10 ? -10 :
-            φ;
-            // λ = λ > 10 ? 10 :
-            // λ < -10 ? -10 :
-            // λ;
-            projection.rotate([λ, φ]);
-            g.selectAll("path.ortho").attr("d", path);
-            g.selectAll(".focused").classed("focused", focused = false);
-        }))
-
-    // Events processing
+    // Event handlers 
     world.on("mouseover", function(d) {
       if (ortho === true) {
           infoLabel.text(countryById[d.id])
@@ -202,6 +140,27 @@ function ready(error, world, countryData) {
          .duration(1000);
     });
 
+    // Drag event - simpler without? 
+    world.call(d3.behavior.drag()
+        .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
+        .on("drag", function() {
+            var λ = d3.event.x * sens,
+            φ = -d3.event.y * sens,
+            rotate = projection.rotate();
+
+            //Set limits for rotation
+            φ = φ > 10 ? 10 :
+            φ < -10 ? -10 :
+            φ;
+            // λ = λ > 10 ? 10 :
+            // λ < -10 ? -10 :
+            // λ;
+            projection.rotate([λ, φ]);
+            g.selectAll("path.ortho").attr("d", path);
+            g.selectAll(".focused").classed("focused", focused = false);
+        })
+    )
+
     // Add extra data when focused
     function focus(d) {
         if (focused === d) return reset();
@@ -230,7 +189,7 @@ function ready(error, world, countryData) {
                     return path(d);
                 }
            })
-          .duration(1000);
+          .duration(1500);
     }
 
 };

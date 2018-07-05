@@ -1,58 +1,93 @@
-body {
-  margin: 0;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  font-family: "Lucida Grande", "Arial", "Helvetica", sans-serif;
-  font-size: 12px;
+body{
+    background-color: whitesmoke;
+ }
+
+svg {
+    background-color: whitesmoke;
+    font-family: 'Lato';
 }
 
-.panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.annotation path {
-  fill: none;
-  stroke: #ff8684;
-  stroke-width: 2
-}
-
-.annotation text {
-  fill: #ff8684;
-}
-.annotation tspan {
-}
-
-.annotation-note-title {
+.annotation-note-title, text.title {
   font-weight: bold;
 }
-.annotation-note-bg {
-  fill: #111144;
-  fill-opacity: 0.9;
-  filter: url(#blur-effect);
+
+text.title {
+  font-size: 1.2em;
 }
 
 
-circle.handle {
-  stroke-dasharray: 5;
-  stroke: #e91e56;
-  fill: rgba(255, 255, 255, .5);
-  cursor: move;
 
-  stroke-opacity: .4;
+
+/* d3-tip */
+  .names {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+  }
+
+/* Tooltip CSS */
+.d3-tip {
+line-height: 1.5;
+font-weight: 400;
+font-family:"avenir next", Arial, sans-serif;
+padding: 6px;
+background: rgba(0, 0, 0, 0.6);
+color: #FFA500;
+border-radius: 1px;
+pointer-events: none;
 }
 
-circle.handle.highlight {
-  stroke-opacity: 1;
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {      
+  box-sizing: border-box;
+  display: inline;
+  font-size: 8px;
+  width: 100%;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.6);
+  position: absolute;
+  pointer-events: none;
+  
 }
 
-.annotation-tip .annotation path {
-  stroke: white;
+/* Northward tooltips */
+.d3-tip.n:after {
+  content: "\25BC";
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+  text-align: center;
 }
-.annotation-tip .annotation text {
-  fill: white;
+
+/* Eastward tooltips */
+.d3-tip.e:after {
+  content: "\25C0";
+  margin: -4px 0 0 0;
+  top: 50%;
+  left: -8px;
+}
+
+/* Southward tooltips */
+.d3-tip.s:after {
+  content: "\25B2";
+  margin: 0 0 1px 0;
+  top: -8px;
+  left: 0;
+  text-align: center;
+}
+
+/* Westward tooltips */
+.d3-tip.w:after {
+  content: "\25B6";
+  margin: -4px 0 0 -1px;
+  top: 50%;
+  left: 100%;
+}
+
+/*    text{
+  pointer-events:none;
+}*/
+
+.details{
+  color:white;
 }

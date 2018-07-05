@@ -1,0 +1,58 @@
+body {
+  margin: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  font-family: "Lucida Grande", "Arial", "Helvetica", sans-serif;
+  font-size: 12px;
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.annotation path {
+  fill: none;
+  stroke: #ff8684;
+  stroke-width: 2
+}
+
+.annotation text {
+  fill: #ff8684;
+}
+.annotation tspan {
+}
+
+.annotation-note-title {
+  font-weight: bold;
+}
+.annotation-note-bg {
+  fill: #111144;
+  fill-opacity: 0.9;
+  filter: url(#blur-effect);
+}
+
+
+circle.handle {
+  stroke-dasharray: 5;
+  stroke: #e91e56;
+  fill: rgba(255, 255, 255, .5);
+  cursor: move;
+
+  stroke-opacity: .4;
+}
+
+circle.handle.highlight {
+  stroke-opacity: 1;
+}
+
+.annotation-tip .annotation path {
+  stroke: white;
+}
+.annotation-tip .annotation text {
+  fill: white;
+}

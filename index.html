@@ -113,14 +113,11 @@
             d3.select(this).classed("focused", focused = d);
 
             country = countryById[d.id]
-            console.log(d);
-
             infoLabel.text(country)
             .style("display", "inline");
             
             // Clicked on feature
             var p = d3.geoCentroid(d);
-            console.log(countryById[d.id]);
             
             // Store the current rotation and scale
             var currentRotate = projection.rotate();
@@ -193,10 +190,10 @@
                     var capOutput = document.createElement('p');
                     var capText = '<b>' + venturesCount + '</b> ventures currently ' + statusDesc + '<br />';
                         capText += 'Finance Round: ' + stageDesc + ' / Sectors (All)<br />';
-                    capOutput.innerHTML = capText + ' Total Capital: <b>USD $' + totalCap + '</b>';
+                        capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
+                        capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br />';
+                    capOutput.innerHTML = capText
                     infoBox.item(0).appendChild(capOutput);
-
-                    
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr.status);

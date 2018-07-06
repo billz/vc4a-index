@@ -17,33 +17,32 @@
 <script>
 
 // Set defaults 
-var mapWidth = 1260,
-    mapHeight = 680,
-    focused = false,
+var focused = false,
     ortho = true, 
     sens = 0.25;
-
-var margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = mapWidth - margin.left - margin.right,
-    height = mapHeight - margin.top - margin.bottom;
-    active = d3.select(null);
+var margin = {top: 10, left: 10, bottom: 10, right: 10},
+    width = parseInt(d3.select('#map').style('width')),
+    width = width - margin.left - margin.right,
+    mapRatio = 0.9,
+    height = width * mapRatio;
+active = d3.select(null);
 
 // Create map projection 
 var projection = d3.geo.orthographic()
-    .scale(500)
+    .scale(width/2)
     .rotate([-15, 0])
-    .translate([width / 2, height / 2])
+    .translate([width / 2, height / 3])
     .clipAngle(90);
 
 var path = d3.geo.path()
     .projection(projection);
 
-var svg = d3.select("div#map").append("svg")
+var svg = d3.select("#map").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-var zoneTooltip = d3.select("div#map").append("div").attr("class", "zoneTooltip"),
-infoLabel = d3.select("div#map").append("div").attr("class", "infoLabel");
+var zoneTooltip = d3.select("#map").append("div").attr("class", "zoneTooltip"),
+infoLabel = d3.select("#map").append("div").attr("class", "infoLabel");
 
 var g = svg.append("g")
     .style("stroke-width", "1.5px");
@@ -53,6 +52,25 @@ queue()
     .defer(d3.json, "data/world-110m.json")
     .defer(d3.tsv, "data/world-110m-country-names.tsv")
     .await(ready)
+
+d3.select(window).on("resize", resize);
+
+function resize() {
+    // Adjust map when the window size changes
+    width = parseInt(d3.select('#map').style('width'));
+    width = width - margin.left - margin.right;
+    height = width * mapRatio;
+
+    // Update projection
+    projection
+      .scale([width/2])
+      .translate([width /2, height / 3]);
+  
+    // Resize map container
+    d3.select("#map").attr("width",width).attr("height",height);
+    d3.select("svg").attr("width",width).attr("height",height);  
+    d3.selectAll("path").attr('d', path);
+}
 
 function ready(error, world, countryData) {
     if (error) throw error;
@@ -99,14 +117,48 @@ function ready(error, world, countryData) {
             zoneTooltip.style("display", "none");
         }
     })
+    .on("resize", resize)
     .on("click", function(d) {        
         if (focused === d) return reset();
-        //g.selectAll(".focused").classed("focused", false);
+        g.selectAll(".focused").classed("focused", false);
         d3.select(this).classed("focused", focused = d);
 
         country = countryById[d.id]
         infoLabel.text(country)
         .style("display", "inline");
+        
+        // Clicked on feature
+        var p = d3.geo.centroid(d);
+        console.log(countryById[d.id]);
+        
+        // Store the current rotation and scale
+        var currentRotate = projection.rotate();
+        var currentScale = projection.scale();
+        
+        // Calculate the future bounding box after applying a rotation
+        projection.rotate([-p[0], -p[1]]);
+        path.projection(projection);
+        
+        // calculate the scale and translate required
+        var b = path.bounds(d);
+        var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/2), (b[1][1] - b[0][1]) / (height/2));
+        var nextRotate = projection.rotate();
+
+        // Update the map
+        d3.selectAll("path")
+         .transition()
+         .attrTween("d", function(d) {
+              var r = d3.interpolate(currentRotate, nextRotate);
+              var s = d3.interpolate(currentScale, nextScale);
+                  return function(t) {
+                      projection
+                          .rotate(r(t))
+                          .scale(s(t));
+                      path.projection(projection);
+                      return path(d);
+                  }
+         })
+         .duration(1000);
 
         // Set defaults 
         var stage = "3rd-round-mezzanine";
@@ -114,12 +166,8 @@ function ready(error, world, countryData) {
         var limit = 5000;
         var status = "r_fundraising";
         var statusDesc = "Fundraising";
-        
-        // Clicked on feature
-        var p = d3.geo.centroid(d);
-        console.log(countryById[d.id]);
-        
-        // Fetch data from API
+
+         // Fetch data from API
         $.ajax({
             dataType: "json",
             url: "https://api.vc4a.com/v1/fundraising/search.json",
@@ -152,35 +200,6 @@ function ready(error, world, countryData) {
                 console.log(thrownError);
             }
         });
-
-        // Store the current rotation and scale
-        var currentRotate = projection.rotate();
-        var currentScale = projection.scale();
-        
-        // Calculate the future bounding box after applying a rotation
-        projection.rotate([-p[0], -p[1]]);
-        path.projection(projection);
-        
-        // calculate the scale and translate required
-        var b = path.bounds(d);
-        var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/2), (b[1][1] - b[0][1]) / (height/2));
-        var nextRotate = projection.rotate();
-
-        // Update the map
-        d3.selectAll("path")
-         .transition()
-         .attrTween("d", function(d) {
-              var r = d3.interpolate(currentRotate, nextRotate);
-              var s = d3.interpolate(currentScale, nextScale);
-                  return function(t) {
-                      projection
-                          .rotate(r(t))
-                          .scale(s(t));
-                      path.projection(projection);
-                      return path(d);
-                  }
-         })
-         .duration(1000);
     });
 
     // Drag event - simpler without? 
@@ -192,8 +211,8 @@ function ready(error, world, countryData) {
             rotate = projection.rotate();
 
             //Set limits for rotation
-            φ = φ > 10 ? 10 :
-            φ < -10 ? -10 :
+            φ = φ > 20 ? 20 :
+            φ < -20 ? -20 :
             φ;
             // λ = λ > 10 ? 10 :
             // λ < -10 ? -10 :
@@ -223,7 +242,7 @@ function ready(error, world, countryData) {
             .transition()
             .attrTween("d", function(d) {
             var r = d3.interpolate(projection.rotate(), [-15, 0]);
-            var s = d3.interpolate(projection.scale(), 500);
+            var s = d3.interpolate(projection.scale(), width/2);
                 return function(t) {
                     projection
                         .scale(s(t))

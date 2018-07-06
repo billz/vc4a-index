@@ -11,9 +11,10 @@
 <body>
 <!-- start -->
 <div id="map">
-<script src="https://d3js.org/d3.v3.min.js"></script>
-<script src="https://d3js.org/topojson.v1.min.js"></script>
-<script src="https://d3js.org/queue.v1.min.js"></script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script src="//d3js.org/queue.v1.min.js"></script>
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 <script>
 
 // Set defaults 
@@ -103,13 +104,35 @@ function ready(error, world, countryData) {
         if (focused === d) return reset();
         g.selectAll(".focused").classed("focused", false);
         d3.select(this).classed("focused", focused = d);
-        infoLabel.text(countryById[d.id])
+
+        country = countryById[d.id]
+        infoLabel.text(country)
         .style("display", "inline");
 
         // Clicked on feature
         var p = d3.geo.centroid(d);
         console.log(countryById[d.id]);
         
+        // Fetch data from API
+        $.ajax({
+            dataType: "json",
+            url: "https://api.vc4a.com/v1/fundraising/search.json",
+            type: "GET",
+            data: { 
+                "status": "r_completed", 
+                "country": country, 
+                "stage": "start-up",
+                "limit": 1000
+            },
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            }
+        });
+
         // Store the current rotation and scale
         var currentRotate = projection.rotate();
         var currentScale = projection.scale();

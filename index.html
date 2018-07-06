@@ -102,22 +102,10 @@
 
         // Event handlers 
         world.on("mouseover", function(d) {
-            if (ortho === true) {
-                infoLabel.text(countryById[d.id])
-                .style("display", "inline");
-            } else {
-                zoneTooltip.text(countryById[d.id])
-                .style("left", (d3.event.pageX + 7) + "px")
-                .style("top", (d3.event.pageY - 15) + "px")
-                .style("display", "block");
-            }
+
         })
         .on("mouseout", function(d) {
-            if (ortho === true) {
-                infoLabel.style("display", "none");
-            } else {
-                zoneTooltip.style("display", "none");
-            }
+
         })
         .on("resize", resize)
         .on("click", function(d) {        
@@ -126,6 +114,7 @@
             d3.select(this).classed("focused", focused = d);
 
             country = countryById[d.id]
+
             infoLabel.text(country)
             .style("display", "inline");
             
@@ -164,7 +153,7 @@
 
             // Set defaults 
             var stage = "Start-up";
-            var stageDesc = "Start-up";
+            var stageDesc = "(All)";
             var limit = 5000;
             var status = "r_fundraising";
             var statusDesc = "Fundraising";
@@ -177,25 +166,37 @@
                 data: { 
                     "status": status, 
                     "country": country, 
-                    "stage": stage,
+                    //"stage": stage,
                     "limit": limit
                 },
                 success: function (data) {
                     var total = 0;
+                    var venturesCount = 0;
                     $.each(data, function() {
                         $.each(this, function() {
                           if (typeof this.capital !== 'undefined') { 
                               for(var i=0;i<this.capital.length;i++) {
-                                  if (typeof this.capital[i].stage !== 'undefined' && this.capital[i].stage == stageDesc) {
-                                      total += Number(this.capital[i].amount);                                    
+                                  //if (typeof this.capital[i].stage !== 'undefined' && this.capital[i].stage == stageDesc) {
+                                  if (typeof this.capital[i].stage !== 'undefined') {
+                                      total += Number(this.capital[i].amount); 
+                                      venturesCount++;                                   
                                       //console.log( this.id + ' ' + this.capital[i].amount + ' total:' + total  );
                                   }
                               }
                           }
                         });
                     });
+
+                    // Prepare output 
                     var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                    console.log( statusDesc + ' ' + stageDesc + ' totalCap: $' + totalCap );
+                    var infoBox = document.getElementsByClassName('infoLabel');
+                    var capOutput = document.createElement('p');
+                    var capText = '<b>' + venturesCount + '</b> ventures currently ' + statusDesc + '<br />';
+                        capText += 'Finance Round: ' + stageDesc + ' / Sectors (All)<br />';
+                    capOutput.innerHTML = capText + ' Total Capital: <b>USD $' + totalCap + '</b>';
+                    infoBox.item(0).appendChild(capOutput);
+
+                    
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr.status);

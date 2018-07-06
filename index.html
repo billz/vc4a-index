@@ -4,152 +4,242 @@
 <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
 <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
-<link rel="manifest" href="/manifest.json">
 <link rel='stylesheet' id='vc4a-index-css'  href='dist/css/style.css' type='text/css' media='all' />
 </head>
 <meta charset="utf-8">
 <body>
-<script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.0.0/d3.min.js"></script>
-<script src="http://d3js.org/queue.v1.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.3.0/d3-annotation.min.js"></script>
-<script src="dist/js/d3-tip.js"></script>
+<!-- start -->
+<div id="map">
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script src="//d3js.org/queue.v1.min.js"></script>
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 <script>
 
-var format = d3.format(",");
+// Set defaults 
+var mapWidth = 1260,
+    mapHeight = 680,
+    focused = false,
+    ortho = true, 
+    sens = 0.25;
 
 var margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = 1260 - margin.left - margin.right,
-    height = 680 - margin.top - margin.bottom;
+    width = mapWidth - margin.left - margin.right,
+    height = mapHeight - margin.top - margin.bottom;
+    active = d3.select(null);
 
-var color = d3.scaleThreshold()
-    .domain([10000,100000,500000,1000000,5000000,10000000,50000000,100000000,500000000,1500000000])
-    .range(["rgb(247,251,255)", "rgb(222,235,247)", "rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(66,146,198)","rgb(33,113,181)","rgb(8,81,156)","rgb(8,48,107)","rgb(3,19,43)"]);
-
-var path = d3.geoPath();
-
-var svg = d3.select("body")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append('g')
-    .attr('class', 'map');
-
-var projection = d3.geoMercator()
+// Create map projection 
+var projection = d3.geo.orthographic()
     .scale(500)
-    .translate( [width / 2.5, height / 1.9 ]);
+    .rotate([-15, 0])
+    .translate([width / 2, height / 2])
+    .clipAngle(90);
 
-var path = d3.geoPath().projection(projection);
+var path = d3.geo.path()
+    .projection(projection);
 
-// Set tooltips
-var tip = d3.tip()
-    .attr('class', 'd3-tip')
-    .offset([-10, 0])
-    .html(function(d) {
-        return "<strong>Country: </strong><span class='details'>" + d.properties.name + "<br></span>" + "<strong>Population: </strong><span class='details'>" + format(d.population) +"</span>";
-})
+var svg = d3.select("div#map").append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-svg.call(tip);
+var zoneTooltip = d3.select("div#map").append("div").attr("class", "zoneTooltip"),
+infoLabel = d3.select("div#map").append("div").attr("class", "infoLabel");
 
+var g = svg.append("g")
+    .style("stroke-width", "1.5px");
+
+// Queue external map data
 queue()
-    .defer(d3.json, "data/africa_continent.json")
-    .defer(d3.tsv, "data/world_population.tsv")
-    .await(ready);
+    .defer(d3.json, "data/world-110m.json")
+    .defer(d3.tsv, "data/world-110m-country-names.tsv")
+    .await(ready)
 
-function ready(error, data, population) {
-    var populationById = {};
+function ready(error, world, countryData) {
+    if (error) throw error;
+    
+    var countryById = {},
+    countries = topojson.feature(world, world.objects.countries).features;
 
-    population.forEach(function(d) { populationById[d.id] = +d.population; });
-    data.features.forEach(function(d) { d.population = populationById[d.id] });
+    // Add countries by name
+    countryData.forEach(function(d) {
+        countryById[d.id] = d.name;
+    });
 
-    svg.append("g")
-        .attr("class", "countries")
-        .selectAll("path")
-        .data(data.features)
-        .enter().append("path")
-        .attr("d", path)
-        .style("fill", function(d) { return color(populationById[d.id]); })
-        .style('stroke', 'white')
-        .style('stroke-width', 1.5)
-        .style("opacity",0.8)
+    // Add oceans
+    g.append("path")
+        .datum({type: "Sphere"})
+        .attr("class", "water")
+        .attr("d", path);
 
-        // tooltips
-        .style("stroke","white")
-        .style('stroke-width', 0.3)
-        .on('mouseover',function(d){
-            tip.show(d);
-            d3.select(this)
-              .style("opacity", 1)
-              .style("stroke","white")
-              .style("stroke-width",2);
-        })
-        .on('mouseout', function(d){
-            tip.hide(d);
-            d3.select(this)
-              .style("opacity", 0.8)
-              .style("stroke","white")
-              .style("stroke-width",0.3);
-        })
-        .on('click', function(d){
+    // Draw countries on the globe
+    var world = g.selectAll("path")
+      .data(countries)
+      .enter().append("path")
+      .attr("overflow", "hidden")
+      .attr("class", "mapData")
+      .attr("d", path)
+      .classed("ortho", ortho = true)
 
-            
-            console.log(this);
+    // Event handlers 
+    world.on("mouseover", function(d) {
+      if (ortho === true) {
+          infoLabel.text(countryById[d.id])
+          .style("display", "inline");
+      } else {
+          zoneTooltip.text(countryById[d.id])
+          .style("left", (d3.event.pageX + 7) + "px")
+          .style("top", (d3.event.pageY - 15) + "px")
+          .style("display", "block");
+      }
+    })
+    .on("mouseout", function(d) {
+        if (ortho === true) {
+            infoLabel.style("display", "none");
+        } else {
+            zoneTooltip.style("display", "none");
+        }
+    })
+    .on("click", function(d) {        
+        if (focused === d) return reset();
+        //g.selectAll(".focused").classed("focused", false);
+        d3.select(this).classed("focused", focused = d);
+
+        country = countryById[d.id]
+        infoLabel.text(country)
+        .style("display", "inline");
+
+        // Set defaults 
+        var stage = "3rd-round-mezzanine";
+        var stageDesc = "3rd round (Mezzanine)";
+        var limit = 5000;
+        var status = "r_fundraising";
+        var statusDesc = "Fundraising";
+        
+        // Clicked on feature
+        var p = d3.geo.centroid(d);
+        console.log(countryById[d.id]);
+        
+        // Fetch data from API
+        $.ajax({
+            dataType: "json",
+            url: "https://api.vc4a.com/v1/fundraising/search.json",
+            type: "GET",
+            data: { 
+                "status": status, 
+                "country": country, 
+                "stage": stage,
+                "limit": limit
+            },
+            success: function (data) {
+                var total = 0;
+                $.each(data, function() {
+                    $.each(this, function() {
+                      if (typeof this.capital !== 'undefined') { 
+                          for(var i=0;i<this.capital.length;i++) {
+                              if (typeof this.capital[i].stage !== 'undefined' && this.capital[i].stage == stageDesc) {
+                                  total += Number(this.capital[i].amount);                                    
+                                  //console.log( this.id + ' ' + this.capital[i].amount + ' total:' + total  );
+                              }
+                          }
+                      }
+                    });
+                });
+                var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                console.log( statusDesc + ' ' + stageDesc + ' totalCap: $' + totalCap );
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            }
         });
 
-  svg.append("path")
-      .datum(topojson.mesh(data.features, function(a, b) { return a.id !== b.id; }))
-      .attr("class", "names")
-      .attr("d", path);
-}
+        // Store the current rotation and scale
+        var currentRotate = projection.rotate();
+        var currentScale = projection.scale();
+        
+        // Calculate the future bounding box after applying a rotation
+        projection.rotate([-p[0], -p[1]]);
+        path.projection(projection);
+        
+        // calculate the scale and translate required
+        var b = path.bounds(d);
+        var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/2), (b[1][1] - b[0][1]) / (height/2));
+        var nextRotate = projection.rotate();
 
+        // Update the map
+        d3.selectAll("path")
+         .transition()
+         .attrTween("d", function(d) {
+              var r = d3.interpolate(currentRotate, nextRotate);
+              var s = d3.interpolate(currentScale, nextScale);
+                  return function(t) {
+                      projection
+                          .rotate(r(t))
+                          .scale(s(t));
+                      path.projection(projection);
+                      return path(d);
+                  }
+         })
+         .duration(1000);
+    });
 
+    // Drag event - simpler without? 
+    world.call(d3.behavior.drag()
+        .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
+        .on("drag", function() {
+            var λ = d3.event.x * sens,
+            φ = -d3.event.y * sens,
+            rotate = projection.rotate();
 
-  const type = d3.annotationCalloutCircle
-  const annotations = [{
-      note: {
-          label: "Basic settings with subject position(x,y) and a note offset(dx, dy)",
-          title: "Annotations :)"
-      },
-      //can use x, y directly instead of data
-      //data: { date: "18-Sep-09", close: 185.02 },
-      x: 100, y: 100,
-      dx: 162, dy: 137,
-      
-      type: d3.annotationCalloutElbow,
-      connector: { end: "arrow" },
-      subject: {
-          radius: 50,
-          radiusPadding: 5
-      }
-  }]
+            //Set limits for rotation
+            φ = φ > 10 ? 10 :
+            φ < -10 ? -10 :
+            φ;
+            // λ = λ > 10 ? 10 :
+            // λ < -10 ? -10 :
+            // λ;
+            projection.rotate([λ, φ]);
+            g.selectAll("path.ortho").attr("d", path);
+            g.selectAll(".focused").classed("focused", focused = false);
+        })
+    )
 
-  const parseTime = d3.timeParse("%d-%b-%y")
-  const timeFormat = d3.timeFormat("%d-%b-%y")
+    // Add extra data when focused
+    function focus(d) {
+        if (focused === d) return reset();
+        g.selectAll(".focused").classed("focused", false);
+        d3.select(this).classed("focused", focused = d);
+    }
 
-  const x = d3.scaleTime().range([0, 800])
-  const y = d3.scaleLinear().range([300, 0])
+    function reset() {
+        active.classed("focused", false);
+        active = d3.select(null);
+        
+        g.selectAll(".focused").classed("focused", focused = false);
+        infoLabel.style("display", "none");
+        zoneTooltip.style("display", "none");
 
-  const makeAnnotations = d3.annotation()
-      .notePadding(15)
-      .type(type)
-      //accessors & accessorsInverse not needed
-      //if using x, y in annotations JSON
-      .accessors({
-        x: d => x(parseTime(d.date)),
-        y: d => y(d.close)
-      })
-      .accessorsInverse({
-         date: d => timeFormat(x.invert(d.x)),
-         close: d => y.invert(d.y)
-      })
-      .annotations(annotations)
+        d3.selectAll("path")
+            .transition()
+            .attrTween("d", function(d) {
+            var r = d3.interpolate(projection.rotate(), [-15, 0]);
+            var s = d3.interpolate(projection.scale(), 500);
+                return function(t) {
+                    projection
+                        .scale(s(t))
+                        .rotate(r(t));
+                    path.projection(projection);
+                    return path(d);
+                }
+           })
+          .duration(1500);
+    }
 
-  d3.select("svg")
-      .append("g")
-      .attr("class", "annotation-group")
-      .call(makeAnnotations)
+};
 
 
 </script>
+</div>
+<!-- end -->
 </body>
 </html>

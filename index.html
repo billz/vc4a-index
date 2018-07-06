@@ -10,7 +10,7 @@
 <body>
 <!-- start -->
 <div id="map">
-<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/d3.v4.min.js"></script>
 <script src="//d3js.org/topojson.v1.min.js"></script>
 <script src="//d3js.org/queue.v1.min.js"></script>
 <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
@@ -28,13 +28,13 @@ var margin = {top: 10, left: 10, bottom: 10, right: 10},
 active = d3.select(null);
 
 // Create map projection 
-var projection = d3.geo.orthographic()
+var projection = d3.geoOrthographic()
     .scale(width/2)
     .rotate([-15, 0])
     .translate([width / 2, height / 3])
     .clipAngle(90);
 
-var path = d3.geo.path()
+var path = d3.geoPath()
     .projection(projection);
 
 var svg = d3.select("#map").append("svg")
@@ -91,24 +91,24 @@ function ready(error, world, countryData) {
 
     // Draw countries on the globe
     var world = g.selectAll("path")
-      .data(countries)
-      .enter().append("path")
-      .attr("overflow", "hidden")
-      .attr("class", "mapData")
-      .attr("d", path)
-      .classed("ortho", ortho = true)
+        .data(countries)
+        .enter().append("path")
+        .attr("overflow", "hidden")
+        .attr("class", "mapData")
+        .attr("d", path)
+        .classed("ortho", ortho = true)
 
     // Event handlers 
     world.on("mouseover", function(d) {
-      if (ortho === true) {
-          infoLabel.text(countryById[d.id])
-          .style("display", "inline");
-      } else {
-          zoneTooltip.text(countryById[d.id])
-          .style("left", (d3.event.pageX + 7) + "px")
-          .style("top", (d3.event.pageY - 15) + "px")
-          .style("display", "block");
-      }
+        if (ortho === true) {
+            infoLabel.text(countryById[d.id])
+            .style("display", "inline");
+        } else {
+            zoneTooltip.text(countryById[d.id])
+            .style("left", (d3.event.pageX + 7) + "px")
+            .style("top", (d3.event.pageY - 15) + "px")
+            .style("display", "block");
+        }
     })
     .on("mouseout", function(d) {
         if (ortho === true) {
@@ -128,7 +128,7 @@ function ready(error, world, countryData) {
         .style("display", "inline");
         
         // Clicked on feature
-        var p = d3.geo.centroid(d);
+        var p = d3.geoCentroid(d);
         console.log(countryById[d.id]);
         
         // Store the current rotation and scale
@@ -161,8 +161,8 @@ function ready(error, world, countryData) {
          .duration(1000);
 
         // Set defaults 
-        var stage = "3rd-round-mezzanine";
-        var stageDesc = "3rd round (Mezzanine)";
+        var stage = "Start-up";
+        var stageDesc = "Start-up";
         var limit = 5000;
         var status = "r_fundraising";
         var statusDesc = "Fundraising";
@@ -203,8 +203,8 @@ function ready(error, world, countryData) {
     });
 
     // Drag event - simpler without? 
-    world.call(d3.behavior.drag()
-        .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
+    world.call(d3.drag()
+        .subject(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
         .on("drag", function() {
             var λ = d3.event.x * sens,
             φ = -d3.event.y * sens,

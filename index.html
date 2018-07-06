@@ -43,16 +43,15 @@
         .attr("width", width)
         .attr("height", height);
 
-    var zoneTooltip = d3.select("#map").append("div").attr("class", "zoneTooltip"),
-    infoLabel = d3.select("#map").append("div").attr("class", "infoLabel");
+    var infoLabel = d3.select("#map").append("div").attr("class", "infoLabel");
 
     var g = svg.append("g")
         .style("stroke-width", "1.5px");
 
     // Queue external map data
     d3.queue()
-        .defer(d3.json, "data/world-110m.json")
-        .defer(d3.tsv, "data/world-110m-country-names.tsv")
+        .defer(d3.json, "data/world-110m.v1.json")
+        .defer(d3.tsv, "data/world-110m.v1.tsv")
         .await(ready)
 
     d3.select(window).on("resize", resize);
@@ -65,8 +64,8 @@
 
         // Update projection
         projection
-          .scale([width/2])
-          .translate([width /2, height / 3]);
+            .scale([width/2])
+            .translate([width /2, height / 3]);
       
         // Resize map container
         d3.select("#map").attr("width",width).attr("height",height);
@@ -82,7 +81,7 @@
 
         // Add countries by name
         countryData.forEach(function(d) {
-            countryById[d.id] = d.name;
+            countryById[d.iso_n3] = d.name;
         });
 
         // Add oceans
@@ -114,6 +113,7 @@
             d3.select(this).classed("focused", focused = d);
 
             country = countryById[d.id]
+            console.log(d);
 
             infoLabel.text(country)
             .style("display", "inline");
@@ -239,7 +239,6 @@
             
             g.selectAll(".focused").classed("focused", focused = false);
             infoLabel.style("display", "none");
-            zoneTooltip.style("display", "none");
 
             d3.selectAll("path")
                 .transition()

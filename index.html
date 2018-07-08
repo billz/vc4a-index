@@ -9,25 +9,48 @@
 <meta charset="utf-8">
 <body>
 <!-- start -->
+<div id="header">
+    <h1>VC4A Index</h1>
+    <label for "status" class="form-label">Status</label>
+    <select class="form-control" name="status" id="status">
+        <option value="r_fundraising">Raising Capital</option>
+        <option value="r_completed">Funded</option>
+    </select>
+    <label for "round" class="form-label">Financing Stage</label>
+    <select class="form-control" name="stage" id="stage">
+        <option value="all">All</option>
+        <option value="seed">Seed</option>
+        <option value="start-up">Start-up</option>
+        <option value="1st-round-series-a">1st Round (Series A)</option>
+        <option value="2nd-round-working-cap">2nd Round (Working cap)</option>
+        <option value="3rd-round-mezzanine">3rd Round (Mezzanine)</option>
+        <option value="4th-round-bridge">4th Round (Bridge)</option>
+        <option value="founder-capital">Founder capital</option>
+    </select>
+    <label for "sector" class="form-label">Sector</label>
+    <select class="form-control" name="sector" id="sector">
+        <option value="r_fundraising">All</option>
+        <option value="r_completed">Funded</option>
+    </select>
+</div>
 <div id="map">
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.0.0/d3.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3-queue/3.0.7/d3-queue.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.3.0/d3-annotation.min.js"></script>
     <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
     <script>
 
     // Set defaults 
     var focused = false,
         ortho = true, 
-        sens = 0.25;
-    var margin = {top: 10, left: 10, bottom: 10, right: 10},
+        sens = 0.25,
+        margin = {top: 10, left: 10, bottom: 10, right: 10},
         width = parseInt(d3.select('#map').style('width')),
         width = width - margin.left - margin.right,
         mapRatio = 0.9,
-        height = width * mapRatio;
-    active = d3.select(null);
+        height = width * mapRatio,
+        active = d3.select(null);
 
     // Create map projection 
     var projection = d3.geoOrthographic()
@@ -134,17 +157,17 @@
 
             // Update the map
             d3.selectAll("path")
-             .transition()
-             .attrTween("d", function(d) {
-                  var r = d3.interpolate(currentRotate, nextRotate);
-                  var s = d3.interpolate(currentScale, nextScale);
-                      return function(t) {
-                          projection
-                              .rotate(r(t))
-                              .scale(s(t));
-                          path.projection(projection);
-                          return path(d);
-                      }
+            .transition()
+            .attrTween("d", function(d) {
+                var r = d3.interpolate(currentRotate, nextRotate);
+                var s = d3.interpolate(currentScale, nextScale);
+                    return function(t) {
+                        projection
+                            .rotate(r(t))
+                            .scale(s(t));
+                        path.projection(projection);
+                        return path(d);
+                    }
              })
              .duration(1000);
 
@@ -230,6 +253,7 @@
             d3.select(this).classed("focused", focused = d);
         }
 
+        // Reset view when focus country is clicked
         function reset() {
             active.classed("focused", false);
             active = d3.select(null);
@@ -255,6 +279,30 @@
 
     };
 
+    $(document).ready(function(){
+        // Populate sector select options from API
+        $.ajax({
+            dataType: "json",
+            url: "https://api.vc4a.com/v1/ventures/sectors.json",
+            type: "GET",
+            success: function (data) {
+                $.each(data, function() {
+                    $.each(this, function() {
+                        console.log(this);
+                        if (typeof this !== 'undefined' && this !== '[object Object]' ) {
+                            var optionItem = this.toString();
+                                optionItem = optionItem.split(' ').slice(0,4).join(' ');
+                            $("#sector").append('<option value="' + this + '">' + optionItem + '</option>');
+                        }
+                    });
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            }
+        });
+    });  
 
     </script>
 </div>

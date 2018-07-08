@@ -1,13 +1,76 @@
-body{
-    background-color: #fcfcfa;
- }
-
-
-#map {
-  position: relative;
+body {
+  background-color: #fcfcfa;
 }
 
-svg {
+body, h1, .form-label, .infoLabel, .form-control {
+  font-family: proxima-nova, Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  color: #ffe504;
+} 
+
+#header {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 50px;
+  width: 100%;
+  border: none;
+  background: #000;
+  overflow: hidden;
+  z-index: 1;
+  flex-direction: row;
+  display: flex!important;
+}
+
+h1 {
+  font-size: 1.8em;
+  margin-top: 10px;
+  margin-left: 15px;
+}
+
+.form-control {
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50px' height='50px'><polyline points='46.139,15.518 25.166,36.49 4.193,15.519'/></svg>");
+  background-color: #a9a9a9;
+  background-repeat: no-repeat;
+  background-position: right 10px top 10px;
+  background-size: 12px 12px;
+  margin-top: 12px;
+  margin-left: 5px;
+  color: white;
+  padding: 4px;
+  width: auto;
+  height: 28px;
+  min-width: 150px;
+  font-weight: 400;
+  font-size: 0.9em;
+  color: #fff;
+  text-align: left;
+  border-radius: 0px;
+  -webkit-border-radius: 0px;
+  -webkit-appearance: none;
+  border: 0;
+  outline: 0;
+  float: left;
+}
+
+.form-label {
+  font-size: 1.0em;
+  margin-top: 18px;
+  margin-left: 40px;
+  color: #ffe504;
+  font-weight: 400;
+  float: left;
+}
+
+#map {
+  position: absolute;
+  top: 50px;
+  left: 0px;
+  right: 0px;
+}
+
+.svg {
   background: #fcfcfa;
   pointer-events: all;
 }
@@ -33,10 +96,6 @@ svg {
   stroke-opacity: .5;
 }
 
-.mapData {
-  fill: darkgrey;
-}
-
 .boundary {
   fill: none;
   stroke: #fff;
@@ -60,11 +119,9 @@ svg {
   -webkit-box-shadow: 0px 0px .2em; #66C2FF;
   -moz-box-shadow: 0px 0px .2em; #66C2FF;
   box-shadow: 0px 0px .2em; #66C2FF;
-  font-family: proxima-nova, Helvetica, Arial, sans-serif;
   text-align: left;            
   padding: 7px;      
   font-size: 1.2em;
-  font-weight: 800;
   line-height: 1.3;
   color: #000;
 }

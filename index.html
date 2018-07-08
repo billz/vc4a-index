@@ -30,8 +30,7 @@
     </select>
     <label for "sector" class="form-label">Sector</label>
     <select class="form-control" name="sector" id="sector">
-        <option value="r_fundraising">All</option>
-        <option value="r_completed">Funded</option>
+        <option value="all">All</option>
     </select>
 </div>
 <div id="map">
@@ -150,7 +149,7 @@
             .style("display", "inline");
 
             // Display associated country flag
-            if ( iso_a2 !== 'undefined' ) {
+            if ( iso_a2 !== 'undefined' && typeof(iso_a2) === 'string' ) {
                 var infoSpan = '<span class="flag-icon flag-icon-' + iso_a2.toLowerCase(iso_a2) + ' flag-icon-squared"></span>';
                 var infoBox = document.getElementsByClassName('infoLabel');
                 infoBox.item(0).innerHTML += (infoSpan);
@@ -189,23 +188,40 @@
              .duration(1000);
 
             // Set defaults 
-            var stage = "Start-up";
-            var stageDesc = "(All)";
             var limit = 5000;
             var status = "r_fundraising";
             var statusDesc = "Fundraising";
+            var stage = "Start-up";
+
+
+            // Fetch select values 
+            var e = document.getElementById('status');
+            var status = e.options[e.selectedIndex].value;
+            var statusDesc = e.options[e.selectedIndex].text;
+
+            var e = document.getElementById('stage');
+            var stage = e.options[e.selectedIndex].value;
+            var stageDesc = e.options[e.selectedIndex].text;
+
+            var e = document.getElementById('sector');
+            var sector = e.options[e.selectedIndex].value;
+            var sectorDesc = e.options[e.selectedIndex].text;
+
+            // Load parameters
+            var data = { "limit": limit,
+                "country": country,
+                "status": status
+            }
+            if (stage !== 'all') { data.stage = stage }
+            if (sector !== 'all') { data.sector = sector }
+            console.log(data.sector);
 
              // Fetch data from API
             $.ajax({
                 dataType: "json",
                 url: "https://api.vc4a.com/v1/fundraising/search.json",
                 type: "GET",
-                data: { 
-                    "status": status, 
-                    "country": country, 
-                    //"stage": stage,
-                    "limit": limit
-                },
+                data: data,
                 success: function (data) {
                     var total = 0;
                     var venturesCount = 0;
@@ -227,7 +243,8 @@
                     var infoBox = document.getElementsByClassName('infoLabel');
                     var capOutput = document.createElement('p');
                     var capText = '<b>' + venturesCount + '</b> ventures currently ' + statusDesc + '<br />';
-                        capText += 'Finance Round: ' + stageDesc + ' / Sectors (All)<br />';
+                        capText += 'Financing Stage: ' + stageDesc + '<br />';
+                        capText += 'Sector: ' + sectorDesc + '<br />'
                         capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
                         capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br />';
                     capOutput.innerHTML = capText

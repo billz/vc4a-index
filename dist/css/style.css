@@ -35,7 +35,7 @@ h1 {
   background-repeat: no-repeat;
   background-position: right 10px top 10px;
   background-size: 12px 12px;
-  margin-top: 12px;
+  margin-top: 11px;
   margin-left: 5px;
   color: white;
   padding: 4px;
@@ -56,7 +56,7 @@ h1 {
 
 .form-label {
   font-size: 1.0em;
-  margin-top: 18px;
+  margin-top: 17px;
   margin-left: 40px;
   color: #ffe504;
   font-weight: 400;

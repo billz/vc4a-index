@@ -5,6 +5,7 @@
     <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
     <link rel='stylesheet' id='vc4a-index-css'  href='dist/css/style.css' type='text/css' media='all' />
+    <link rel='stylesheet' id='flag-icon-css' href='//cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.1.0/css/flag-icon.min.css' type='text/css' media='all' />
 </head>
 <meta charset="utf-8">
 <body>
@@ -75,6 +76,7 @@
     d3.queue()
         .defer(d3.json, "data/world-110m.v1.json")
         .defer(d3.tsv, "data/world-110m.v1.tsv")
+        .defer(d3.tsv, "data/world-iso_a2.tsv")
         .await(ready)
 
     d3.select(window).on("resize", resize);
@@ -96,15 +98,21 @@
         d3.selectAll("path").attr('d', path);
     }
 
-    function ready(error, world, countryData) {
+    function ready(error, world, countryData, iso_a2Data) {
         if (error) throw error;
         
         var countryById = {},
-        countries = topojson.feature(world, world.objects.countries).features;
+            iso_a2ById = {},
+            countries = topojson.feature(world, world.objects.countries).features;
 
         // Add countries by name
         countryData.forEach(function(d) {
-            countryById[d.iso_n3] = d.name;
+            countryById[d.iso_n3] = d.geounit;
+        });
+
+        // Add iso_a2 codes 
+        iso_a2Data.forEach(function(d) {
+            iso_a2ById[d.id] = d.iso_a2;
         });
 
         // Add oceans
@@ -136,9 +144,19 @@
             d3.select(this).classed("focused", focused = d);
 
             country = countryById[d.id]
+            iso_a2 = iso_a2ById[d.id]
+            
             infoLabel.text(country)
             .style("display", "inline");
-            
+
+            console.log(iso_a2ById);
+            // Display associated country flag
+            if ( iso_a2 !== 'undefined' ) {
+                var infoSpan = '<span class="flag-icon flag-icon-' + iso_a2.toLowerCase(iso_a2) + ' flag-icon-squared"></span>';
+                var infoBox = document.getElementsByClassName('infoLabel');
+                infoBox.item(0).innerHTML += (infoSpan);
+            }
+
             // Clicked on feature
             var p = d3.geoCentroid(d);
             
@@ -152,7 +170,7 @@
             
             // calculate the scale and translate required
             var b = path.bounds(d);
-            var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/2), (b[1][1] - b[0][1]) / (height/2));
+            var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/3), (b[1][1] - b[0][1]) / (height/3));
             var nextRotate = projection.rotate();
 
             // Update the map
@@ -196,11 +214,9 @@
                         $.each(this, function() {
                           if (typeof this.capital !== 'undefined') { 
                               for(var i=0;i<this.capital.length;i++) {
-                                  //if (typeof this.capital[i].stage !== 'undefined' && this.capital[i].stage == stageDesc) {
                                   if (typeof this.capital[i].stage !== 'undefined') {
                                       total += Number(this.capital[i].amount); 
                                       venturesCount++;                                   
-                                      //console.log( this.id + ' ' + this.capital[i].amount + ' total:' + total  );
                                   }
                               }
                           }
@@ -288,8 +304,7 @@
             success: function (data) {
                 $.each(data, function() {
                     $.each(this, function() {
-                        console.log(this);
-                        if (typeof this !== 'undefined' && this !== '[object Object]' ) {
+                        if (typeof this !== 'undefined') {
                             var optionItem = this.toString();
                                 optionItem = optionItem.split(' ').slice(0,4).join(' ');
                             $("#sector").append('<option value="' + this + '">' + optionItem + '</option>');

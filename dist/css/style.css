@@ -24,9 +24,16 @@ body, h1, .form-label, .infoLabel, .form-control {
 }
 
 h1 {
-  font-size: 1.8em;
+  font-size: 1.6em;
   margin-top: 10px;
   margin-left: 15px;
+}
+
+h1 sup {
+  font-size: 0.4em;
+  vertical-align: top;
+  line-height: 18px;
+  margin-left: 3px; 
 }
 
 .form-control {
@@ -57,7 +64,7 @@ h1 {
 .form-label {
   font-size: 1.0em;
   margin-top: 17px;
-  margin-left: 40px;
+  margin-left: 30px;
   color: #ffe504;
   font-weight: 400;
   float: left;
@@ -106,7 +113,7 @@ h1 {
   position: fixed;
   bottom:2%;
   left: 2%;
-  height: 180px;
+  height: 200px;
   width: 300px;
   display: none;
   border: solid #ccc 1px;

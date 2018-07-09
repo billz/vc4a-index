@@ -37,8 +37,8 @@ d3.queue()
 
 d3.select(window).on("resize", resize);
 
+// Event handler to adjust map when the window size changes
 function resize() {
-    // Adjust map when the window size changes
     width = parseInt(d3.select('#map').style('width'));
     width = width - margin.left - margin.right;
     height = width * mapRatio;
@@ -71,7 +71,7 @@ function ready(error, world, countryData, iso_a2Data) {
         iso_a2ById[d.id] = d.iso_a2;
     });
 
-    // Add oceans
+    // Fill oceans
     g.append("path")
         .datum({type: "Sphere"})
         .attr("class", "water")
@@ -203,7 +203,8 @@ function ready(error, world, countryData, iso_a2Data) {
                     capText += 'Financing Stage: ' + stageDesc + '<br />';
                     capText += 'Sector: ' + sectorDesc + '<br />'
                     capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
-                    capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br />';
+                    capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />';
+                    capText += 'Get detailed financials with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
                 capOutput.innerHTML = capText
                 infoBox.item(0).appendChild(capOutput);
             },

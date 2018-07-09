@@ -150,7 +150,7 @@ function ready(error, world, countryData, iso_a2Data) {
          })
          .duration(1000);
 
-         fetchAPIData(country);
+         fetchAPIData();
         
     });
 
@@ -208,11 +208,9 @@ function ready(error, world, countryData, iso_a2Data) {
 
 };
 
-// Queries the API with user inputs 
+// Queries the API with user inputs
+// Displays output in country detail box 
 function fetchAPIData() {
-
-    // Get country focus
-    //g.selectAll(".focused").classed("focused", false);
 
     // Set defaults 
     var limit = 5000;
@@ -232,9 +230,6 @@ function fetchAPIData() {
     var e = document.getElementById('sector');
     var sector = e.options[e.selectedIndex].value;
     var sectorDesc = e.options[e.selectedIndex].text;
-   
-    console.log('g = ' + g);
-    console.log('country = ' + country);
 
     // Load parameters
     var data = { "limit": limit,
@@ -276,6 +271,7 @@ function fetchAPIData() {
                 capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
                 capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />';
                 capText += 'Get detailed financials with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
+            // Update content of country detail info box
             infoContent.innerHTML = capText;
         },
         error: function (xhr, ajaxOptions, thrownError) {

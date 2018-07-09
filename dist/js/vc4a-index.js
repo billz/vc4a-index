@@ -157,18 +157,18 @@ function ready(error, world, countryData, iso_a2Data) {
     world.call(d3.drag()
         .subject(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
         .on("drag", function() {
-            var λ = d3.event.x * sens,
-            φ = -d3.event.y * sens,
+            var lamda = d3.event.x * sens,
+            phi = -d3.event.y * sens,
             rotate = projection.rotate();
 
             //Set limits for rotation
-            φ = φ > 20 ? 20 :
-            φ < -20 ? -20 :
-            φ;
-            // λ = λ > 10 ? 10 :
-            // λ < -10 ? -10 :
-            // λ;
-            projection.rotate([λ, φ]);
+            phi = phi > 20 ? 20 :
+            phi < -20 ? -20 :
+            phi;
+            // lamda = lamda > 10 ? 10 :
+            // lamda < -10 ? -10 :
+            // lamda;
+            projection.rotate([lamda, phi]);
             g.selectAll("path.ortho").attr("d", path);
             g.selectAll(".focused").classed("focused", focused = false);
         })

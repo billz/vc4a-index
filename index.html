@@ -13,12 +13,12 @@
 <div id="header">
     <h1>VC4A Index<sup>(Beta)</sup></h1>
     <label for "status" class="form-label">Status</label>
-    <select class="form-control" name="status" id="status">
+    <select class="form-control" name="status" id="status" onChange="fetchAPIData()">
         <option value="r_fundraising">Raising Capital</option>
         <option value="r_completed">Funded</option>
     </select>
     <label for "round" class="form-label">Financing Stage</label>
-    <select class="form-control" name="stage" id="stage">
+    <select class="form-control" name="stage" id="stage" onChange="fetchAPIData()">
         <option value="all">All</option>
         <option value="seed">Seed</option>
         <option value="start-up">Start-up</option>
@@ -29,7 +29,7 @@
         <option value="founder-capital">Founder capital</option>
     </select>
     <label for "sector" class="form-label">Sector</label>
-    <select class="form-control" name="sector" id="sector">
+    <select class="form-control" name="sector" id="sector" onChange="fetchAPIData()">
         <option value="all">All</option>
     </select>
 </div>

@@ -106,15 +106,16 @@ function ready(error, world, countryData, iso_a2Data) {
         infoLabel.text(country)
         .style("display", "inline");
 
-        var infoBox = document.getElementById('infoLabel');
         // Display associated country flag
+        var infoBox = document.getElementById('infoLabel');
         if ( iso_a2 !== 'undefined' && typeof(iso_a2) === 'string' ) {
             var infoSpan = '<span class="flag-icon flag-icon-' + iso_a2.toLowerCase(iso_a2) + ' flag-icon-squared"></span>';
             infoBox.innerHTML += (infoSpan);
         }
 
+        // Append new element to display content
         var infoContent = document.createElement('p');
-        infoBox.appendChild(infoContent); // Append new element for content
+        infoBox.appendChild(infoContent); 
         infoContent.setAttribute("class", "countryDetail");
 
         // Clicked on feature
@@ -161,7 +162,7 @@ function ready(error, world, countryData, iso_a2Data) {
             phi = -d3.event.y * sens,
             rotate = projection.rotate();
 
-            //Set limits for rotation
+            // Define limits for rotation
             phi = phi > 20 ? 20 :
             phi < -20 ? -20 :
             phi;
@@ -211,7 +212,7 @@ function ready(error, world, countryData, iso_a2Data) {
 function fetchAPIData() {
 
     // Get country focus
-    g.selectAll(".focused").classed("focused", false);
+    //g.selectAll(".focused").classed("focused", false);
 
     // Set defaults 
     var limit = 5000;

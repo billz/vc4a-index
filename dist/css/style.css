@@ -117,7 +117,7 @@ h1 sup {
   width: 300px;
   display: none;
   border: solid #ccc 1px;
-  color: #666;
+  color: #000;
   background: #fff;
   z-index: 1;
   -webkit-border-radius: .2em;;
@@ -130,7 +130,6 @@ h1 sup {
   padding: 7px;      
   font-size: 1.2em;
   line-height: 1.3;
-  color: #000;
 }
 
 #infoLabel p {
@@ -139,6 +138,43 @@ h1 sup {
 }
 #infoLabel span {
   margin: 0px 5px;
+}
+
+#infoLabel a:link, #infoLabel a:visited {
+  color: #40aa34;
+  text-decoration: none
+}
+
+.poweredBy {   
+  position: fixed;
+  bottom:2%;
+  right: 2%;
+  height: 16px;
+  width: 150px;
+  border: solid #ccc 1px;
+  color: #000;
+  background: #fff;
+  z-index: 1;
+  -webkit-border-radius: .2em;;
+  -moz-border-radius: .2em;;
+  border-radius: .2em;;
+  -webkit-box-shadow: 0px 0px .2em; #66C2FF;
+  -moz-box-shadow: 0px 0px .2em; #66C2FF;
+  box-shadow: 0px 0px .2em; #66C2FF;
+  text-align: right;            
+  padding: 8px 12px 8px 12px;      
+  font-size: 0.7em;
+  line-height: 1.3;
+}
+
+.poweredBy a:link, .poweredBy a:visited {
+  color: #1b98d5;
+  text-decoration: none
+}
+
+.poweredBy i {
+  color: #cda632;
+  font-size: 1.3em;
 }
 
 .mapData {

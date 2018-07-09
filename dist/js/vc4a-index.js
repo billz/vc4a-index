@@ -23,7 +23,7 @@ var svg = d3.select("#map").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-var infoLabel = d3.select("#map").append("div").attr("class", "infoLabel");
+var infoLabel = d3.select("#map").append("div").attr("id", "infoLabel");
 
 var g = svg.append("g")
     .style("stroke-width", "1.5px");
@@ -102,15 +102,20 @@ function ready(error, world, countryData, iso_a2Data) {
         country = countryById[d.id]
         iso_a2 = iso_a2ById[d.id]
         
+        // Display infoLabel
         infoLabel.text(country)
         .style("display", "inline");
 
+        var infoBox = document.getElementById('infoLabel');
         // Display associated country flag
         if ( iso_a2 !== 'undefined' && typeof(iso_a2) === 'string' ) {
             var infoSpan = '<span class="flag-icon flag-icon-' + iso_a2.toLowerCase(iso_a2) + ' flag-icon-squared"></span>';
-            var infoBox = document.getElementsByClassName('infoLabel');
-            infoBox.item(0).innerHTML += (infoSpan);
+            infoBox.innerHTML += (infoSpan);
         }
+
+        var infoContent = document.createElement('p');
+        infoBox.appendChild(infoContent); // Append new element for content
+        infoContent.setAttribute("class", "countryDetail");
 
         // Clicked on feature
         var p = d3.geoCentroid(d);
@@ -144,75 +149,8 @@ function ready(error, world, countryData, iso_a2Data) {
          })
          .duration(1000);
 
-        // Set defaults 
-        var limit = 5000;
-        var status = "r_fundraising";
-        var statusDesc = "Fundraising";
-        var stage = "Start-up";
-
-
-        // Fetch select values 
-        var e = document.getElementById('status');
-        var status = e.options[e.selectedIndex].value;
-        var statusDesc = e.options[e.selectedIndex].text;
-
-        var e = document.getElementById('stage');
-        var stage = e.options[e.selectedIndex].value;
-        var stageDesc = e.options[e.selectedIndex].text;
-
-        var e = document.getElementById('sector');
-        var sector = e.options[e.selectedIndex].value;
-        var sectorDesc = e.options[e.selectedIndex].text;
-
-        // Load parameters
-        var data = { "limit": limit,
-            "country": country,
-            "status": status
-        }
-        if (stage !== 'all') { data.stage = stage }
-        if (sector !== 'all') { data.sector = sector }
-        console.log(data.sector);
-
-         // Fetch data from API
-        $.ajax({
-            dataType: "json",
-            url: "https://api.vc4a.com/v1/fundraising/search.json",
-            type: "GET",
-            data: data,
-            success: function (data) {
-                var total = 0;
-                var venturesCount = 0;
-                $.each(data, function() {
-                    $.each(this, function() {
-                      if (typeof this.capital !== 'undefined') { 
-                          for(var i=0;i<this.capital.length;i++) {
-                              if (typeof this.capital[i].stage !== 'undefined') {
-                                  total += Number(this.capital[i].amount); 
-                                  venturesCount++;                                   
-                              }
-                          }
-                      }
-                    });
-                });
-
-                // Prepare output 
-                var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                var infoBox = document.getElementsByClassName('infoLabel');
-                var capOutput = document.createElement('p');
-                var capText = '<b>' + venturesCount + '</b> ventures currently ' + statusDesc + '<br />';
-                    capText += 'Financing Stage: ' + stageDesc + '<br />';
-                    capText += 'Sector: ' + sectorDesc + '<br />'
-                    capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
-                    capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />';
-                    capText += 'Get detailed financials with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
-                capOutput.innerHTML = capText
-                infoBox.item(0).appendChild(capOutput);
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                console.log(xhr.status);
-                console.log(thrownError);
-            }
-        });
+         fetchAPIData(country);
+        
     });
 
     // Drag event - simpler without? 
@@ -268,6 +206,83 @@ function ready(error, world, countryData, iso_a2Data) {
     }
 
 };
+
+// Queries the API with user inputs 
+function fetchAPIData() {
+
+    // Get country focus
+    g.selectAll(".focused").classed("focused", false);
+
+    // Set defaults 
+    var limit = 5000;
+    var status = "r_fundraising";
+    var statusDesc = "Fundraising";
+    var stage = "Start-up";
+
+    // Fetch select values 
+    var e = document.getElementById('status');
+    var status = e.options[e.selectedIndex].value;
+    var statusDesc = e.options[e.selectedIndex].text;
+
+    var e = document.getElementById('stage');
+    var stage = e.options[e.selectedIndex].value;
+    var stageDesc = e.options[e.selectedIndex].text;
+
+    var e = document.getElementById('sector');
+    var sector = e.options[e.selectedIndex].value;
+    var sectorDesc = e.options[e.selectedIndex].text;
+   
+    console.log('g = ' + g);
+    console.log('country = ' + country);
+
+    // Load parameters
+    var data = { "limit": limit,
+        "country": country,
+        "status": status
+    }
+    if (stage !== 'all') { data.stage = stage }
+    if (sector !== 'all') { data.sector = sector }
+
+     // Fetch data from API
+    $.ajax({
+        dataType: "json",
+        url: "https://api.vc4a.com/v1/fundraising/search.json",
+        type: "GET",
+        data: data,
+        success: function (data) {
+            var total = 0;
+            var venturesCount = 0;
+            $.each(data, function() {
+                $.each(this, function() {
+                  if (typeof this.capital !== 'undefined') { 
+                      for(var i=0;i<this.capital.length;i++) {
+                          if (typeof this.capital[i].stage !== 'undefined') {
+                              total += Number(this.capital[i].amount); 
+                              venturesCount++;                                   
+                          }
+                      }
+                  }
+                });
+            });
+
+            // Prepare country detail output 
+            var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            var infoBox = document.getElementById('infoLabel');
+            var infoContent = infoBox.getElementsByClassName('countryDetail')[0];
+            var capText = '<b>' + venturesCount + '</b> ventures currently ' + statusDesc + '<br />';
+                capText += 'Financing Stage: ' + stageDesc + '<br />';
+                capText += 'Sector: ' + sectorDesc + '<br />'
+                capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
+                capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />';
+                capText += 'Get detailed financials with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
+            infoContent.innerHTML = capText;
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+        }
+    });
+}
 
 $(document).ready(function(){
     // Populate sector select options from API

@@ -218,7 +218,7 @@ function fetchAPIData() {
     var statusDesc = "Fundraising";
     var stage = "Start-up";
 
-    // Fetch select values 
+    // Fetch select option values 
     var e = document.getElementById('status');
     var status = e.options[e.selectedIndex].value;
     var statusDesc = e.options[e.selectedIndex].text;
@@ -270,7 +270,7 @@ function fetchAPIData() {
                 capText += 'Sector: ' + sectorDesc + '<br />'
                 capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
                 capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />';
-                capText += 'Get detailed financials with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
+                capText += 'Get detailed financials and expert analysis with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
             // Update content of country detail info box
             infoContent.innerHTML = capText;
         },

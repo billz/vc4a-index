@@ -2,77 +2,25 @@ body {
   background-color: #fcfcfa;
 }
 
-body, h1, .form-label, .infoLabel, .form-control {
+body, .form-label, .infoLabel, .form-control {
   font-family: proxima-nova, Helvetica, Arial, sans-serif;
-  font-weight: 800;
   color: #ffe504;
 } 
 
-#header {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  height: 50px;
-  width: 100%;
-  border: none;
-  background: #000;
-  overflow: hidden;
-  z-index: 1;
-  flex-direction: row;
-  display: flex!important;
-}
-
-h1 {
+.navbar .navbar-brand {
   font-size: 1.6em;
-  margin-top: 10px;
-  margin-left: 15px;
+  font-weight: 600;
+  color: #ffe504!important;
 }
 
-h1 sup {
-  font-size: 0.4em;
-  vertical-align: top;
-  line-height: 18px;
-  margin-left: 3px; 
-}
-
-.form-control {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50px' height='50px'><polyline points='46.139,15.518 25.166,36.49 4.193,15.519'/></svg>");
-  background-color: #a9a9a9;
-  background-repeat: no-repeat;
-  background-position: right 10px top 10px;
-  background-size: 12px 12px;
-  margin-top: 11px;
-  margin-left: 5px;
-  color: white;
-  padding: 4px;
-  width: auto;
-  height: 28px;
-  min-width: 150px;
-  font-weight: 400;
-  font-size: 0.9em;
-  color: #fff;
-  text-align: left;
-  border-radius: 0px;
-  -webkit-border-radius: 0px;
-  -webkit-appearance: none;
-  border: 0;
-  outline: 0;
-  float: left;
-}
-
-.form-label {
-  font-size: 1.0em;
-  margin-top: 17px;
-  margin-left: 30px;
-  color: #ffe504;
-  font-weight: 400;
-  float: left;
+.navbar .navbar-brand sup {
+  font-size: 0.5em;
+  font-weight: normal
 }
 
 #map {
   position: absolute;
-  top: 50px;
+  top: 60px;
   left: 0px;
   right: 0px;
 }
@@ -94,13 +42,6 @@ h1 sup {
 
 .fill {
   fill: #f2f2f2;
-}
-
-.graticule {
-  fill: none;
-  stroke: #777;
-  stroke-width: .5px;
-  stroke-opacity: .5;
 }
 
 .boundary {
@@ -128,13 +69,15 @@ h1 sup {
   box-shadow: 0px 0px .2em; #66C2FF;
   text-align: left;            
   padding: 7px;      
-  font-size: 1.2em;
+  font-size: 1.0em;
+  font-weight: bold;
   line-height: 1.3;
 }
 
 #infoLabel p {
   font-size: 0.9em;
   font-weight: normal;
+  margin-top: 10px;
 }
 #infoLabel span {
   margin: 0px 5px;
@@ -145,36 +88,45 @@ h1 sup {
   text-decoration: none
 }
 
-.poweredBy {   
+.poweredBy, .reset {   
   position: fixed;
-  bottom:2%;
-  right: 2%;
-  height: 16px;
-  width: 150px;
   border: solid #ccc 1px;
   color: #000;
   background: #fff;
-  z-index: 1;
   -webkit-border-radius: .2em;;
   -moz-border-radius: .2em;;
   border-radius: .2em;;
   -webkit-box-shadow: 0px 0px .2em; #66C2FF;
   -moz-box-shadow: 0px 0px .2em; #66C2FF;
   box-shadow: 0px 0px .2em; #66C2FF;
-  text-align: right;            
-  padding: 8px 12px 8px 12px;      
-  font-size: 0.7em;
-  line-height: 1.3;
+  text-align: center;
+  padding: 4px;              
+  font-size: 0.8em;
 }
 
-.poweredBy a:link, .poweredBy a:visited {
+.poweredBy a:link, .poweredBy a:visited, .reset a:link, .reset a:visited {
   color: #1b98d5;
   text-decoration: none
 }
 
+.poweredBy {
+  bottom:10px;
+  right: 10px;
+  height: 30px;
+  width: 200px;
+}
+
 .poweredBy i {
   color: #cda632;
-  font-size: 1.3em;
+  font-size: 1.2em;
+  padding-top: 2px;
+}
+
+.reset {
+  bottom:50px;
+  right: 10px;
+  height: 30px;
+  width: 80px;
 }
 
 .mapData {

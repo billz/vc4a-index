@@ -7,42 +7,59 @@
     <link rel='stylesheet' id='vc4a-index-css'  href='dist/css/style.css' type='text/css' media='all' />
     <link rel='stylesheet' id='flag-icon-css' href='//cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.1.0/css/flag-icon.min.css' type='text/css' media='all' />
     <link rel="stylesheet" id='fontawesome' href="//use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+    <link rel="stylesheet" id='bootstrap' href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">    
 </head>
 <meta charset="utf-8">
-<body>
-<!-- start -->
-<div id="header">
-    <h1>VC4A Index<sup>(Beta)</sup></h1>
-    <label for "status" class="form-label">Status</label>
-    <select class="form-control" name="status" id="status" onChange="fetchAPIData()">
-        <option value="r_fundraising">Raising Capital</option>
-        <option value="r_completed">Funded</option>
-    </select>
-    <label for "round" class="form-label">Financing Stage</label>
-    <select class="form-control" name="stage" id="stage" onChange="fetchAPIData()">
-        <option value="all">All</option>
-        <option value="seed">Seed</option>
-        <option value="start-up">Start-up</option>
-        <option value="1st-round-series-a">1st Round (Series A)</option>
-        <option value="2nd-round-working-cap">2nd Round (Working cap)</option>
-        <option value="3rd-round-mezzanine">3rd Round (Mezzanine)</option>
-        <option value="4th-round-bridge">4th Round (Bridge)</option>
-        <option value="founder-capital">Founder capital</option>
-    </select>
-    <label for "sector" class="form-label">Sector</label>
-    <select class="form-control" name="sector" id="sector" onChange="fetchAPIData()">
-        <option value="all">All</option>
-    </select>
-</div>
-<div id="map">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.0.0/d3.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3-queue/3.0.7/d3-queue.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
-    <script src="dist/js/vc4a-index.js"></script>
-</div>
-<div class="poweredBy"><i class="fas fa-bolt"></i> Powered by the <a href="https://developers.vc4a.com" target="_blank">VC4A API</a></div>
-<!-- end -->
+<body> 
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-brand">VC4A Index<sup>(Beta)</sup></div>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <form class="form-inline my-lg-0">
+                <div class="input-group mr-sm-2">
+                    <label for "status" class="form-label">Status</label>
+                    <select class="form-control mr-sm-2 ml-sm-1 bg-secondary text-white" name="status" id="status" onChange="fetchAPIData()">
+                        <option value="r_fundraising">Raising Capital</option>
+                        <option value="r_completed">Funded</option>
+                    </select>
+                </div>
+                <div class="input-group mr-sm-2">
+                    <label for "round" class="form-label">Financing Stage</label>
+                    <select class="form-control mr-sm-2 ml-sm-1 bg-secondary text-white" name="stage" id="stage" onChange="fetchAPIData()">
+                        <option value="all">All</option>
+                        <option value="seed">Seed</option>
+                        <option value="start-up">Start-up</option>
+                        <option value="1st-round-series-a">1st Round (Series A)</option>
+                        <option value="2nd-round-working-cap">2nd Round (Working cap)</option>
+                        <option value="3rd-round-mezzanine">3rd Round (Mezzanine)</option>
+                        <option value="4th-round-bridge">4th Round (Bridge)</option>
+                        <option value="founder-capital">Founder capital</option>
+                    </select>
+                </div>
+                <div class="input-group mr-sm-2">
+                    <label for "sector" class="form-label">Sector</label>
+                    <select class="form-control mr-sm-2 ml-sm-1 bg-secondary text-white" name="sector" id="sector" onChange="fetchAPIData()">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </nav>
+    <div id="map">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.0.0/d3.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3-queue/3.0.7/d3-queue.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="dist/js/vc4a-index.js"></script>
+    </div>
+    <div class="reset"><a href="#" onClick="reset()">Reset map</a></div>
+    <div class="poweredBy"><i class="fas fa-bolt"></i> Powered by the <a href="https://developers.vc4a.com" target="_blank">VC4A API</a></div>
 </body>
 </html>

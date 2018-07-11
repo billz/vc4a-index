@@ -1,18 +1,21 @@
 // Set defaults 
 var focused = false,
     ortho = true, 
-    sens = 0.25,
-    margin = {top: 10, left: 10, bottom: 10, right: 10},
+    sens = 0.15,
+    margin = {top: 0, left: 0, bottom: 0, right: 0},
     width = parseInt(d3.select('#map').style('width')),
     width = width - margin.left - margin.right,
     mapRatio = 0.9,
-    height = width * mapRatio,
+    scaleFactor = 1.8;
+    //height = width * mapRatio,
+    var height = $(window).height();
+    $("#map").css('height', height );
     active = d3.select(null);
 
 // Create map projection 
 var projection = d3.geoOrthographic()
-    .scale(width/2)
-    .rotate([-15, 0])
+    .scale(width/scaleFactor)
+    .rotate([-15, -15])
     .translate([width / 2, height / 3])
     .clipAngle(90);
 
@@ -45,7 +48,7 @@ function resize() {
 
     // Update projection
     projection
-        .scale([width/2])
+        .scale([width/scaleFactor])
         .translate([width /2, height / 3]);
   
     // Resize map container
@@ -131,7 +134,7 @@ function ready(error, world, countryData, iso_a2Data) {
         
         // calculate the scale and translate required
         var b = path.bounds(d);
-        var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/3), (b[1][1] - b[0][1]) / (height/3));
+        var nextScale = currentScale * 1 / Math.max((b[1][0] - b[0][0]) / (width/1.5), (b[1][1] - b[0][1]) / (height/2));
         var nextRotate = projection.rotate();
 
         // Update the map
@@ -142,8 +145,8 @@ function ready(error, world, countryData, iso_a2Data) {
             var s = d3.interpolate(currentScale, nextScale);
                 return function(t) {
                     projection
-                        .rotate(r(t))
-                        .scale(s(t));
+                        .rotate(r(Math.pow(t,0.33)))
+                        .scale( currentScale > nextScale ? s(Math.pow(t,0.1)) : s(Math.pow(t,3)) );
                     path.projection(projection);
                     return path(d);
                 }
@@ -180,30 +183,6 @@ function ready(error, world, countryData, iso_a2Data) {
         if (focused === d) return reset();
         g.selectAll(".focused").classed("focused", false);
         d3.select(this).classed("focused", focused = d);
-    }
-
-    // Reset view when focus country is clicked
-    function reset() {
-        active.classed("focused", false);
-        active = d3.select(null);
-        
-        g.selectAll(".focused").classed("focused", focused = false);
-        infoLabel.style("display", "none");
-
-        d3.selectAll("path")
-            .transition()
-            .attrTween("d", function(d) {
-            var r = d3.interpolate(projection.rotate(), [-15, 0]);
-            var s = d3.interpolate(projection.scale(), width/2);
-                return function(t) {
-                    projection
-                        .scale(s(t))
-                        .rotate(r(t));
-                    path.projection(projection);
-                    return path(d);
-                }
-           })
-          .duration(1500);
     }
 
 };
@@ -281,7 +260,32 @@ function fetchAPIData() {
     });
 }
 
+// Reset view when focus country is clicked
+function reset() {
+    active.classed("focused", false);
+    active = d3.select(null);
+    
+    g.selectAll(".focused").classed("focused", focused = false);
+    infoLabel.style("display", "none");
+
+    d3.selectAll("path")
+        .transition()
+        .attrTween("d", function(d) {
+        var r = d3.interpolate(projection.rotate(), [-15, -15]);
+        var s = d3.interpolate(projection.scale(), width/scaleFactor);
+            return function(t) {
+                projection
+                    .scale(s(t))
+                    .rotate(r(t));
+                path.projection(projection);
+                return path(d);
+            }
+       })
+      .duration(1500);
+}
+
 $(document).ready(function(){
+
     // Populate sector select options from API
     $.ajax({
         dataType: "json",

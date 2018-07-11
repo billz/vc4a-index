@@ -113,7 +113,7 @@ h1 sup {
   position: fixed;
   bottom:2%;
   left: 2%;
-  height: 200px;
+  height: 300px;
   width: 300px;
   display: none;
   border: solid #ccc 1px;
@@ -133,7 +133,7 @@ h1 sup {
 }
 
 #infoLabel p {
-  font-size: 0.8em;
+  font-size: 0.9em;
   font-weight: normal;
 }
 #infoLabel span {

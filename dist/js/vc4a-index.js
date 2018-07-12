@@ -41,7 +41,7 @@ d3.select(window).on("resize", resize);
 function resize() {
     width = parseInt(d3.select('#map').style('width'));
     width = width - margin.left - margin.right;
-    height = width * mapRatio;
+    height = $(window).height();
 
     // Update projection
     projection

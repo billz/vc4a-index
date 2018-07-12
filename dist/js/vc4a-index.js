@@ -2,14 +2,11 @@
 var focused = false,
     ortho = true, 
     sens = 0.15,
-    margin = {top: 0, left: 0, bottom: 0, right: 0},
+    margin = {top: 60, left: 0, bottom: 0, right: 0},
     width = parseInt(d3.select('#map').style('width')),
     width = width - margin.left - margin.right,
-    mapRatio = 0.9,
-    scaleFactor = 1.8;
-    //height = width * mapRatio,
-    var height = $(window).height();
-    $("#map").css('height', height );
+    scaleFactor = 1.8,
+    height = $(window).height();
     active = d3.select(null);
 
 // Create map projection 

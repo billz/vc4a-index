@@ -184,8 +184,7 @@ function ready(error, world, countryData, iso_a2Data) {
 
 };
 
-// Queries the API with user inputs
-// Displays output in country detail box 
+// Queries the API with user inputs, displays output in country detail box 
 function fetchAPIData() {
 
     // Set defaults 
@@ -215,10 +214,10 @@ function fetchAPIData() {
     if (stage !== 'all') { data.stage = stage }
     if (sector !== 'all') { data.sector = sector }
 
-     // Fetch data from API
+     // Prepare Ajax request 
     $.ajax({
         dataType: "json",
-        url: "https://api.vc4a.com/v1/fundraising/search.json",
+        url: "https://api.vc4a.com/v2/fundraising/search.json",
         type: "GET",
         data: data,
         success: function (data) {
@@ -283,7 +282,7 @@ function reset() {
 
 $(document).ready(function(){
 
-    // Populate sector select options from API
+    // Populate sector select option values from API
     $.ajax({
         dataType: "json",
         url: "https://api.vc4a.com/v1/ventures/sectors.json",

@@ -217,7 +217,7 @@ function fetchAPIData() {
      // Prepare Ajax request 
     $.ajax({
         dataType: "json",
-        url: "https://api.vc4a.com/v2/fundraising/search.json",
+        url: "https://api.vc4a.com/v1/fundraising/trends.json",
         type: "GET",
         data: data,
         success: function (data) {

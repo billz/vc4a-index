@@ -166,9 +166,6 @@ function ready(error, world, countryData, iso_a2Data) {
             phi = phi > 20 ? 20 :
             phi < -20 ? -20 :
             phi;
-            // lamda = lamda > 10 ? 10 :
-            // lamda < -10 ? -10 :
-            // lamda;
             projection.rotate([lamda, phi]);
             g.selectAll("path.ortho").attr("d", path);
             g.selectAll(".focused").classed("focused", focused = false);
@@ -188,23 +185,23 @@ function ready(error, world, countryData, iso_a2Data) {
 function fetchAPIData() {
 
     // Set defaults 
-    var limit = 5000;
-    var status = "r_fundraising";
-    var statusDesc = "Fundraising";
-    var stage = "Start-up";
+    var limit = 5000,
+        status = "r_fundraising",
+        statusDesc = "Fundraising",
+        stage = "Start-up";
 
     // Fetch select option values 
-    var e = document.getElementById('status');
-    var status = e.options[e.selectedIndex].value;
-    var statusDesc = e.options[e.selectedIndex].text;
+    var e = document.getElementById('status'),
+        status = e.options[e.selectedIndex].value,
+        statusDesc = e.options[e.selectedIndex].text;
 
-    var e = document.getElementById('stage');
-    var stage = e.options[e.selectedIndex].value;
-    var stageDesc = e.options[e.selectedIndex].text;
+    var e = document.getElementById('stage'),
+        stage = e.options[e.selectedIndex].value,
+        stageDesc = e.options[e.selectedIndex].text;
 
-    var e = document.getElementById('sector');
-    var sector = e.options[e.selectedIndex].value;
-    var sectorDesc = e.options[e.selectedIndex].text;
+    var e = document.getElementById('sector'),
+        sector = e.options[e.selectedIndex].value,
+        sectorDesc = e.options[e.selectedIndex].text;
 
     // Load parameters
     var data = { "limit": limit,
@@ -241,10 +238,10 @@ function fetchAPIData() {
             var infoBox = document.getElementById('infoLabel');
             var infoContent = infoBox.getElementsByClassName('countryDetail')[0];
             var capText = '<b>' + venturesCount + '</b> ventures currently ' + statusDesc + '<br />';
-                capText += 'Financing Stage: ' + stageDesc + '<br />';
+                capText += 'Financing Stage: ' + stageDesc + '<br />'
                 capText += 'Sector: ' + sectorDesc + '<br />'
-                capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />';
-                capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />';
+                capText += 'Total Capital: <b>USD $' + totalCap + '</b><br />'
+                capText += 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />'
                 capText += 'Get detailed financials and expert analysis with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
             // Update content of country detail info box
             infoContent.innerHTML = capText;

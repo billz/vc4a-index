@@ -1,4 +1,4 @@
-![VC4A Index with D3](https://i.imgur.com/vJYn6ev.gif)
+![VC4A Index with D3](https://i.imgur.com/PjlM7Or.png)
 
 # `vc4a-index` [![Release 0.9](https://img.shields.io/badge/Release-0.9-green.svg)](https://github.com/billz/vc4a-index/releases)
 The VC4A Index is a lightweight API client that makes use of [D3.js](https://d3js.org/), a JavaScript library for producing interactive data visualizations, and the [VC4A API](https://developers.vc4a.com/).

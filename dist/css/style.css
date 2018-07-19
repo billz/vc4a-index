@@ -18,11 +18,28 @@ body, .form-label, .infoLabel, .form-control {
   font-weight: normal
 }
 
+#filterMenuButton {
+  position: absolute;
+  top: 4em;
+}
+
+#filterMenu {
+  position: absolute;
+  top: 8em;
+  left: 1em;
+  padding: 1em;
+}
+
+#filterMenu .close {
+  color: #ffe504;
+}
+
 #map {
   position: absolute;
   top: 60px;
-  left: 0px;
-  right: 0px;
+  left: 0;
+  right: 0;
+  overflow: hidden;
 }
 
 .svg {
@@ -50,12 +67,11 @@ body, .form-label, .infoLabel, .form-control {
   stroke-width: .5px;
 }
 
-#infoLabel {   
+#infoLabel {
   position: fixed;
-  bottom:2%;
-  left: 2%;
-  height: 300px;
-  width: 300px;
+  bottom: 10%;
+  left: 25%;
+  width: 25%;
   display: none;
   border: solid #ccc 1px;
   color: #000;
@@ -64,14 +80,22 @@ body, .form-label, .infoLabel, .form-control {
   -webkit-border-radius: .2em;;
   -moz-border-radius: .2em;;
   border-radius: .2em;;
-  -webkit-box-shadow: 0px 0px .2em; #66C2FF;
-  -moz-box-shadow: 0px 0px .2em; #66C2FF;
-  box-shadow: 0px 0px .2em; #66C2FF;
+  -webkit-box-shadow: 0 0 .2em #66C2FF;
+  -moz-box-shadow: 0 0 .2em #66C2FF;
+  box-shadow: 0 0 .2em #66C2FF;
   text-align: left;            
   padding: 7px;      
   font-size: 1.0em;
   font-weight: bold;
   line-height: 1.3;
+}
+
+@media (max-width: 767px) {
+  #infoLabel {
+    left: 1%;
+    bottom: 1%;
+    width: 100%;
+  }
 }
 
 #infoLabel p {
@@ -80,7 +104,7 @@ body, .form-label, .infoLabel, .form-control {
   margin-top: 10px;
 }
 #infoLabel span {
-  margin: 0px 5px;
+  margin: 0 5px;
 }
 
 #infoLabel a:link, #infoLabel a:visited {
@@ -93,12 +117,12 @@ body, .form-label, .infoLabel, .form-control {
   border: solid #ccc 1px;
   color: #000;
   background: #fff;
-  -webkit-border-radius: .2em;;
-  -moz-border-radius: .2em;;
-  border-radius: .2em;;
-  -webkit-box-shadow: 0px 0px .2em; #66C2FF;
-  -moz-box-shadow: 0px 0px .2em; #66C2FF;
-  box-shadow: 0px 0px .2em; #66C2FF;
+  -webkit-border-radius: .2em;
+  -moz-border-radius: .2em;
+  border-radius: .2em;
+  -webkit-box-shadow: 0 0 .2em #66C2FF;
+  -moz-box-shadow: 0 0 .2em #66C2FF;
+  box-shadow: 0 0 .2em #66C2FF;
   text-align: center;
   padding: 4px;              
   font-size: 0.8em;
@@ -138,7 +162,7 @@ body, .form-label, .infoLabel, .form-control {
 .ortho {
   fill: #a9a9a9;
   stroke: #fff;
-  stroke-width: 1.5px;  
+  stroke-width: 1px;
 }
 
 .mapData:hover {
@@ -149,11 +173,63 @@ body, .form-label, .infoLabel, .form-control {
   fill: #ffe504;
 }
 
+.switch-field {
+  position: relative;
+}
 
+.switch-field input[type=radio] {
+  position: absolute !important;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  width: 1px;
+  border: 0;
+  overflow: hidden;
+}
 
+.switch-field input[type=radio]:checked + label {
+   background-color: #ffe504;
+   color: #000;
+   box-shadow: none;
+}
 
+.switch-field label {
+  display: inline-block;
+  min-width: 5em;
+  background-color: #edede8;
+  background-image: none;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: normal;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.1s ease-in-out;
 
+  margin-bottom: 0;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  white-space: nowrap;
+  text-transform: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border-radius: .3em;
+}
 
+.switch-field label:hover {
+   cursor: pointer;
+}
 
+.switch-field label:first-of-type {
+   border-radius: .4em 0 0 .4em;
+}
+.switch-field label:last-of-type {
+   border-radius: 0 .4em .4em 0;
+}
 
-
+/* Color code VC4A countries */
+.hasData {
+  fill: #b7e0ad;
+}

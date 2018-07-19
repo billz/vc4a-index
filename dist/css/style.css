@@ -233,3 +233,7 @@ body, .form-label, .infoLabel, .form-control {
 .hasData {
   fill: #b7e0ad;
 }
+
+.hasData.focused {
+  fill: #34b233;
+}

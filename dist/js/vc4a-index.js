@@ -93,9 +93,7 @@ function ready(error, world, countryData, iso_a2Data) {
         "270": "Gambia",
         "288": "Ghana",
         "324": "Guinea",
-        "328": "Guyana",
         "384": "Ivory Coast",
-        "388": "Jamaica",
         "404": "Kenya",
         "426": "Lesotho",
         "430": "Liberia",
@@ -130,7 +128,6 @@ function ready(error, world, countryData, iso_a2Data) {
         "-99": "Somaliland",
         "004": "Afghanistan",
         "024": "Angola",
-        "084": "Belize",
         "072": "Botswana",
         "012": "Algeria"
     };
@@ -144,7 +141,6 @@ function ready(error, world, countryData, iso_a2Data) {
             if( z.id == "-99" ) {
                 console.log(z, vc4aCountries.hasOwnProperty(z.id))
             }
-            console.log(vc4aCountries.hasOwnProperty(z.id));
             return 'mapData'+ ( vc4aCountries.hasOwnProperty(z.id) ? ' hasData' : '');
         })
         .attr("d", path)

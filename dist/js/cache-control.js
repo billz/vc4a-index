@@ -1,3 +1,8 @@
+/**
+  * Nodejs cache controller.
+  * Updates the data cache by asynchronously querying the VC4A API.
+  * Requires node-rate-limiter.
+*/
 
 updateCache();
 
@@ -6,6 +11,7 @@ function updateCache() {
 
     const https = require("https");
     const fs = require('fs');
+    const RateLimiter = require('limiter').RateLimiter;
     const dataPath = '../../data/vc4a-cache.tsv';
 
     // Define VC4A focus countries 
@@ -66,62 +72,74 @@ function updateCache() {
     // Truncate cache file
     fs.truncate(dataPath, 0, function(){ console.log('Cache truncated') })
 
+    // Limit requesets to max 6 per second
+    var limiter = new RateLimiter( 6, 'second' ); 
+
     // Iterate countries, querying API asyncronously 
     for (var key in vc4aCountries) {
         if ( vc4aCountries.hasOwnProperty(key) ) {
             ( function( country, key ) {
 
                 // Set defaults 
-                var limit = 5000;
+                var limit = 5000,
+                    status = 'r_completed';
 
-                var options = {
+                const options = {
                     method: "GET",
                     hostname: "api.vc4a.com",
                     port: 443,
                     encoding: null,
-                    path: "/v1/fundraising/trends.json?status=r_completed&country=" + encodeURI(country) + "&limit=" + limit
+                    headers: { 'User-Agent': 'VC4A cache-control/1.0' },
+                    path: "/v1/fundraising/trends.json?status=" + status + "&country=" + encodeURI(country) + "&limit=" + limit
                 };
 
-                var request = https.request(options, function (res) {
-                    var chunks = [];
+                limiter.removeTokens(1, function() {
+                    var request = https.request(options, function (res) {
+                        var chunks = [];
+                       
+                        res.on("data", function (chunk) {
+                            chunks.push(chunk);
+                        });
 
-                    res.on("data", function (chunk) {
-                        chunks.push(chunk);
-                    });
+                        res.on("end", function () {
+                            // Check HTTP response status code 
+                            if ( ('' + res.statusCode).match(/^2\d\d$/) ) {  // 200, request OK 
+                                var json = JSON.parse(Buffer.concat(chunks).toString());
+                                var total = 0;
+                                var venturesCount = 0;
 
-                    res.on("end", function () {
-                        // Check HTTP response status code 
-                        if ( ('' + res.statusCode).match(/^2\d\d$/) ) {  // 200 = request OK 
-                            var json = JSON.parse(Buffer.concat(chunks).toString());
-                            var total = 0;
-                            var venturesCount = 0;
-
-                            // Parse capital from json object
-                            for ( ventures in json ) {
-                                for ( item in json[ventures] ) {
-                                    var capital = json[ventures][item].capital;
-                                    for ( round in capital ) {
-                                        var amount = capital[round]['amount'];
-                                        total += Number( amount );
+                                // Parse capital from json object
+                                for ( ventures in json ) {
+                                    for ( item in json[ventures] ) {
+                                        var capital = json[ventures][item].capital;
+                                        for ( round in capital ) {
+                                            var amount = capital[round]['amount'];
+                                            total += Number( amount );
+                                        }
                                     }
                                 }
-                            }
-                            var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                            var dataRow = key + '\t' + country + '\t' + totalCap + '\n';
-                            //console.log(dataRow);
+                                var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                                var dataRow = key + '\t' + country + '\t' + totalCap + '\n';
+                                //console.log(dataRow);
 
-                            fs.appendFile(dataPath, dataRow, 'utf8', function(err) {
-                                if (err) console.log(err);   
-                            });
-                        } else {  // Request not handled 
-                            console.log (res.statusCode);
-                        }
+                                fs.appendFile(dataPath, dataRow, 'utf8', function(err) {
+                                    if (err) console.log(err);   
+                                });
+                            } else {  // Request not handled 
+                                console.log(res.statusCode);
+                            }
+                        });
+                        res.on("error", function (err) {
+                            console.log(err);
+                        });
                     });
-                    res.on("error", function (err) {
-                        console.log(err);
+                    request.setTimeout( 5000, function() {
+                        request.abort();
+                        console.log('Connection timed out');
+                        self.emit('pass',message);
                     });
-                });
-                request.end();
+                    request.end();
+                }); 
             })( vc4aCountries[key], key );
         }
     }

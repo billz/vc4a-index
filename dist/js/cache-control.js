@@ -65,22 +65,26 @@ function updateCache() {
         "854": "Burkina Faso",
         "894": "Zambia",
         "-99": "Somaliland",
-        "004": "Afghanistan",
         "024": "Angola",
         "072": "Botswana",
         "012": "Algeria"
     };
 
     // Truncate cache file
-    fs.truncate(dataPath, 0, function(){ console.log('Cache truncated') })
+    fs.truncate( dataPath, 0, function(){ console.log('Cache truncated') } );
 
-    // Limit requesets to max 6 per second
-    var limiter = new RateLimiter( 6, 'second' ); 
+    // Append header
+    fs.appendFile( dataPath, "id\tcountry\ttotalCap\n", 'utf8', function(err) {
+        if (err) console.log(err);
+    });
+
+    // Limit requesets to max 5 per second
+    var limiter = new RateLimiter( 5, 'second' );
 
     // Iterate countries, querying API asyncronously 
-    for (var key in vc4aCountries) {
-        if ( vc4aCountries.hasOwnProperty(key) ) {
-            ( function( country, key ) {
+    for (var id in vc4aCountries) {
+        if ( vc4aCountries.hasOwnProperty(id) ) {
+            ( function( country, id ) {
 
                 // Set defaults 
                 var limit = 5000,
@@ -95,8 +99,8 @@ function updateCache() {
                     path: "/v1/fundraising/trends.json?status=" + status + "&country=" + encodeURI(country) + "&limit=" + limit
                 };
 
-                limiter.removeTokens(1, function() {  // Use limiter to wrap request function
-                    var request = https.request(options, function (res) {
+                limiter.removeTokens( 1, function() {  // Use limiter to wrap request function
+                    var request = https.request( options, function (res) {
                         var chunks = [];
                        
                         res.on("data", function (chunk) {
@@ -105,7 +109,7 @@ function updateCache() {
                         res.on("end", function () {
                             // Check HTTP response status code 
                             if ( ('' + res.statusCode).match(/^2\d\d$/) ) {  // 200, request OK 
-                                var json = JSON.parse(Buffer.concat(chunks).toString());
+                                var json = JSON.parse( Buffer.concat(chunks).toString() );
                                 var total = 0;
                                 var venturesCount = 0;
 
@@ -119,8 +123,8 @@ function updateCache() {
                                         }
                                     }
                                 }
-                                var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                                var dataRow = key + '\t' + country + '\t' + totalCap + '\n';
+                                //var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                                var dataRow = id + '\t' + country + '\t' + total + '\n';
 
                                 // Append result to cache
                                 fs.appendFile(dataPath, dataRow, 'utf8', function(err) {
@@ -141,7 +145,7 @@ function updateCache() {
                     });
                     request.end();
                 }); 
-            })( vc4aCountries[key], key );
+            })( vc4aCountries[id], id );
         }
     }
 }

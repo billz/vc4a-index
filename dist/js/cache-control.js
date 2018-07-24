@@ -1,6 +1,7 @@
 /**
   * Nodejs cache controller.
   * Updates the data cache by asynchronously querying the VC4A API.
+  * Results are stored in tab-delimited file.
   * Requires node-rate-limiter.
 */
 
@@ -63,6 +64,7 @@ function updateCache() {
         "834": "Tanzania",
         "854": "Burkina Faso",
         "894": "Zambia",
+        "-99": "Somaliland",
         "004": "Afghanistan",
         "024": "Angola",
         "072": "Botswana",
@@ -89,18 +91,17 @@ function updateCache() {
                     hostname: "api.vc4a.com",
                     port: 443,
                     encoding: null,
-                    headers: { 'User-Agent': 'VC4A cache-control/1.0' },
+                    headers: { 'User-Agent': 'VC4A Cache-control/1.0' },
                     path: "/v1/fundraising/trends.json?status=" + status + "&country=" + encodeURI(country) + "&limit=" + limit
                 };
 
-                limiter.removeTokens(1, function() {
+                limiter.removeTokens(1, function() {  // Use limiter to wrap request function
                     var request = https.request(options, function (res) {
                         var chunks = [];
                        
                         res.on("data", function (chunk) {
                             chunks.push(chunk);
                         });
-
                         res.on("end", function () {
                             // Check HTTP response status code 
                             if ( ('' + res.statusCode).match(/^2\d\d$/) ) {  // 200, request OK 
@@ -120,8 +121,8 @@ function updateCache() {
                                 }
                                 var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
                                 var dataRow = key + '\t' + country + '\t' + totalCap + '\n';
-                                //console.log(dataRow);
 
+                                // Append result to cache
                                 fs.appendFile(dataPath, dataRow, 'utf8', function(err) {
                                     if (err) console.log(err);   
                                 });

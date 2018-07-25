@@ -123,7 +123,6 @@ function updateCache() {
                                         }
                                     }
                                 }
-                                //var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
                                 var dataRow = id + '\t' + country + '\t' + total + '\n';
 
                                 // Append result to cache

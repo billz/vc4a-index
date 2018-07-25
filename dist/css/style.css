@@ -235,5 +235,13 @@ body, .form-label, .infoLabel, .form-control {
 }
 
 .hasData.focused {
-  fill: #34b233;
+  fill: #2b922a;
 }
+
+.scale5 { fill: #2b922a; }
+.scale4 { fill: #51a550; }
+.scale3 { fill: #78b977; }
+.scale2 { fill: #9ecd9e; }
+.scale1 { fill: #c5e1c4; }
+.scale0 { fill: #d0d0d0; }
+

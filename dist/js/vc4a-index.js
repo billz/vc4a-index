@@ -33,6 +33,7 @@ d3.queue()
     .defer(d3.json, "data/world-110m.v1.json")
     .defer(d3.tsv, "data/world-110m.v1.tsv")
     .defer(d3.tsv, "data/world-iso_a2.tsv")
+    .defer(d3.tsv, "data/vc4a-cache.tsv")
     .await(ready);
 
 d3.select(window).on("resize", resize);
@@ -54,11 +55,13 @@ function resize() {
     d3.selectAll("path").attr('d', path);
 }
 
-function ready(error, world, countryData, iso_a2Data) {
+function ready(error, world, countryData, iso_a2Data, financeData) {
     if (error) throw error;
 
     var countryById = {},
         iso_a2ById = {},
+        financeById = {},
+        vc4aCountries = {},
         countries = topojson.feature(world, world.objects.countries).features;
 
     // Add countries by name
@@ -71,66 +74,25 @@ function ready(error, world, countryData, iso_a2Data) {
         iso_a2ById[d.id] = d.iso_a2;
     });
 
+    // Add vc4a countries, financials by country
+    financeData.forEach(function (d) {
+        financeById[d.id] = d.totalCap;
+        vc4aCountries[d.id] = d.country;
+    });
+
+    // Determine min/max totalCap, threshold scale 
+    var arr = Object.values( financeById );
+    var min = Math.min( ... arr );
+    var max = Math.max( ... arr );
+    var range = 5,
+        tScale = Number( ( max - min ) / range ),
+        capTotal = 0;
+
     // Fill oceans
     g.append("path")
         .datum({type: "Sphere"})
         .attr("class", "water")
         .attr("d", path);
-
-    var vc4aCountries = {
-        "108": "Burundi",
-        "120": "Cameroon",
-        "140": "Central African Republic",
-        "148": "Chad",
-        "178": "Republic of Congo",
-        "180": "Democratic Republic of the Congo",
-        "204": "Benin",
-        "226": "Equatorial Guinea",
-        "231": "Ethiopia",
-        "232": "Eritrea",
-        "262": "Djibouti",
-        "266": "Gabon",
-        "270": "Gambia",
-        "288": "Ghana",
-        "324": "Guinea",
-        "384": "Ivory Coast",
-        "404": "Kenya",
-        "426": "Lesotho",
-        "430": "Liberia",
-        "434": "Libya",
-        "450": "Madagascar",
-        "454": "Malawi",
-        "466": "Mali",
-        "478": "Mauritania",
-        "504": "Morocco",
-        "508": "Mozambique",
-        "516": "Namibia",
-        "562": "Niger",
-        "566": "Nigeria",
-        "624": "Guinea Bissau",
-        "646": "Rwanda",
-        "686": "Senegal",
-        "694": "Sierra Leone",
-        "706": "Somalia",
-        "710": "South Africa",
-        "716": "Zimbabwe",
-        "728": "South Sudan",
-        "729": "Sudan",
-        "732": "Western Sahara",
-        "748": "Swaziland",
-        "768": "Togo",
-        "788": "Tunisia",
-        "800": "Uganda",
-        "818": "Egypt",
-        "834": "Tanzania",
-        "854": "Burkina Faso",
-        "894": "Zambia",
-        "-99": "Somaliland",
-        "004": "Afghanistan",
-        "024": "Angola",
-        "072": "Botswana",
-        "012": "Algeria"
-    };
 
     // Draw countries on the globe
     world = g.selectAll("path")
@@ -138,14 +100,26 @@ function ready(error, world, countryData, iso_a2Data) {
         .enter().append("path")
         .attr("overflow", "hidden")
         .attr("class", function(z) {
-            if( z.id == "-99" ) {
-                console.log(z, vc4aCountries.hasOwnProperty(z.id))
+            if( vc4aCountries.hasOwnProperty(z.id) ) {
+                capTotal = parseInt(financeById[z.id]);
+
+                // Assign color value with a simple linear threshold model.
+                // Todo: Outliers (South Africa, for example) skew this data.
+                // This can be improved with a more sophisticated model.
+                var classOpt;
+                if (capTotal == 0) { classOpt = 0 }; // Handle no data 
+                for (var n = 0; n < range; n++) {
+                    if (capTotal > tScale * n && capTotal <= tScale * (n+1)) { 
+                        classOpt = n+1;
+                    }; 
+                }
+                return 'mapData'+ ( vc4aCountries.hasOwnProperty(z.id) ? ' hasData  scale' + classOpt  : '');
+            } else if ( z.id == "-99" ) {
+                //console.log(z, vc4aCountries.hasOwnProperty(z.id))
             }
-            return 'mapData'+ ( vc4aCountries.hasOwnProperty(z.id) ? ' hasData' : '');
         })
         .attr("d", path)
         .classed("ortho", ortho = true)
-
 
     // Event handlers 
     //world.on("mouseover", function (d) {});

@@ -81,10 +81,10 @@ function ready(error, world, countryData, iso_a2Data, financeData) {
     });
 
     // Determine min/max totalCap, threshold scale 
-    var arr = Object.values( financeById );
-    var min = Math.min( ... arr );
-    var max = Math.max( ... arr );
-    var range = 5,
+    var arr = Object.values( financeById ),
+        min = Math.min( ... arr ),
+        max = Math.max( ... arr ),
+        range = 5,
         tScale = Number( ( max - min ) / range ),
         capTotal = 0;
 
@@ -99,6 +99,9 @@ function ready(error, world, countryData, iso_a2Data, financeData) {
         .data(countries)
         .enter().append("path")
         .attr("overflow", "hidden")
+
+    
+
         .attr("class", function(z) {
             if( vc4aCountries.hasOwnProperty(z.id) ) {
                 capTotal = parseInt(financeById[z.id]);
@@ -107,9 +110,9 @@ function ready(error, world, countryData, iso_a2Data, financeData) {
                 // Todo: Outliers (South Africa, for example) skew this data.
                 // This can be improved with a more sophisticated model.
                 var classOpt;
-                if (capTotal == 0) { classOpt = 0 }; // Handle no data 
-                for (var n = 0; n < range; n++) {
-                    if (capTotal > tScale * n && capTotal <= tScale * (n+1)) { 
+                if ( capTotal == 0 ) { classOpt = 0 }; // Handle no data 
+                for ( var n = 0; n < range; n++ ) {
+                    if ( capTotal > tScale * n && capTotal <= tScale * (n+1) ) { 
                         classOpt = n+1;
                     }; 
                 }
@@ -275,9 +278,9 @@ function fetchAPIData() {
             });
 
             // Prepare country detail output 
-            var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-            var infoBox = document.getElementById('infoLabel');
-            var infoContent = infoBox.getElementsByClassName('countryDetail')[0];
+            var totalCap = total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'),
+                infoBox = document.getElementById('infoLabel'),
+                infoContent = infoBox.getElementsByClassName('countryDetail')[0];
 
             // Update content of country detail info box
             infoContent.innerHTML = '<b>' + venturesCount + '</b> ventures currently ' + statusDesc + '<br />'
@@ -318,27 +321,27 @@ function reset() {
         .duration(1500);
 }
 
-$(document).ready(function () {
-    // Populate sector select option values from API
-    $.ajax({
-        dataType: "json",
-        url: "https://api.vc4a.com/v1/ventures/sectors.json",
-        type: "GET",
-        success: function (data) {
-            $.each(data, function () {
-                $.each(this, function () {
-                    if (typeof this !== 'undefined') {
-                        $("#sector").append('<option value="' + this + '">'
-                            + this.toString().split(' ').slice(0, 4).join(' ')
-                            + '</option>'
-                        );
-                    }
-                });
-            });
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            console.log(xhr.status);
-            console.log(thrownError);
-        }
-    });
-});  
+// $(document).ready(function () {
+//     // Populate sector select option values from API
+//     $.ajax({
+//         dataType: "json",
+//         url: "https://api.vc4a.com/v1/ventures/sectors.json",
+//         type: "GET",
+//         success: function (data) {
+//             $.each(data, function () {
+//                 $.each(this, function () {
+//                     if (typeof this !== 'undefined') {
+//                         $("#sector").append('<option value="' + this + '">'
+//                             + this.toString().split(' ').slice(0, 4).join(' ')
+//                             + '</option>'
+//                         );
+//                     }
+//                 });
+//             });
+//         },
+//         error: function (xhr, ajaxOptions, thrownError) {
+//             console.log(xhr.status);
+//             console.log(thrownError);
+//         }
+//     });
+// });  

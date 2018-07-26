@@ -58,6 +58,23 @@ function resize() {
 function ready(error, world, countryData, iso_a2Data, financeData) {
     if (error) throw error;
 
+    // Define constants
+    const colorVariable = 'totalCap';
+    const geoIDVariable = 'id';
+    const color = d3.scaleQuantile()
+        .range([
+            'rgb(197, 225, 196)',
+            'rgb(179, 216, 178)',
+            'rgb(162, 207, 161)',
+            'rgb(145, 198, 144)',
+            'rgb(128, 189, 127)',
+            'rgb(111, 181, 110)',
+            'rgb(94, 172, 93)',
+            'rgb(77, 163, 76)',
+            'rgb(60, 154, 59)',
+            'rgb(43, 146, 42)'
+        ]);
+
     var countryById = {},
         iso_a2ById = {},
         financeById = {},
@@ -80,13 +97,23 @@ function ready(error, world, countryData, iso_a2Data, financeData) {
         vc4aCountries[d.id] = d.country;
     });
 
-    // Determine min/max totalCap, threshold scale 
-    var arr = Object.values( financeById ),
-        min = Math.min( ... arr ),
-        max = Math.max( ... arr ),
-        range = 5,
-        tScale = Number( ( max - min ) / range ),
-        capTotal = 0;
+    /**
+      * The Ckmeans algorithm from the simple-statistics package is used to cluster our data.
+      * The minimum value of each cluster is defined as a break. We then use these breaks with a quantile scale 
+      * to map values in the data to colors on the choropleth map.
+      *
+      * @see https://simplestatistics.org/docs/#ckmeans
+    */
+    const numberOfClasses = color.range().length - 1;
+    const ckmeansClusters = ss.ckmeans(financeData.map(d => d[colorVariable]), numberOfClasses);
+    const ckmeansBreaks = ckmeansClusters.map(d => d3.min(d));
+    console.log('numberOfClasses', numberOfClasses);
+    console.log('ckmeansClusters', ckmeansClusters);
+    console.log('ckmeansBreaks', ckmeansBreaks);
+
+    // Sets the domain of the color scale based on our data
+    color
+        .domain(ckmeansBreaks);
 
     // Fill oceans
     g.append("path")
@@ -99,27 +126,16 @@ function ready(error, world, countryData, iso_a2Data, financeData) {
         .data(countries)
         .enter().append("path")
         .attr("overflow", "hidden")
-
-    
-
         .attr("class", function(z) {
             if( vc4aCountries.hasOwnProperty(z.id) ) {
-                capTotal = parseInt(financeById[z.id]);
-
-                // Assign color value with a simple linear threshold model.
-                // Todo: Outliers (South Africa, for example) skew this data.
-                // This can be improved with a more sophisticated model.
-                var classOpt;
-                if ( capTotal == 0 ) { classOpt = 0 }; // Handle no data 
-                for ( var n = 0; n < range; n++ ) {
-                    if ( capTotal > tScale * n && capTotal <= tScale * (n+1) ) { 
-                        classOpt = n+1;
-                    }; 
-                }
-                return 'mapData'+ ( vc4aCountries.hasOwnProperty(z.id) ? ' hasData  scale' + classOpt  : '');
-            } else if ( z.id == "-99" ) {
-                //console.log(z, vc4aCountries.hasOwnProperty(z.id))
+                return 'mapData'+ ( vc4aCountries.hasOwnProperty(z.id) ? ' hasData' : '');
             }
+        })
+        .style('fill', d => {
+            if (typeof financeById[d.id] !== 'undefined') {
+                return color(financeById[d.id])
+            }
+            return 'darkgrey'
         })
         .attr("d", path)
         .classed("ortho", ortho = true)
@@ -321,27 +337,27 @@ function reset() {
         .duration(1500);
 }
 
-// $(document).ready(function () {
-//     // Populate sector select option values from API
-//     $.ajax({
-//         dataType: "json",
-//         url: "https://api.vc4a.com/v1/ventures/sectors.json",
-//         type: "GET",
-//         success: function (data) {
-//             $.each(data, function () {
-//                 $.each(this, function () {
-//                     if (typeof this !== 'undefined') {
-//                         $("#sector").append('<option value="' + this + '">'
-//                             + this.toString().split(' ').slice(0, 4).join(' ')
-//                             + '</option>'
-//                         );
-//                     }
-//                 });
-//             });
-//         },
-//         error: function (xhr, ajaxOptions, thrownError) {
-//             console.log(xhr.status);
-//             console.log(thrownError);
-//         }
-//     });
-// });  
+$(document).ready(function () {
+    // Populate sector select option values from API
+    $.ajax({
+        dataType: "json",
+        url: "https://api.vc4a.com/v1/ventures/sectors.json",
+        type: "GET",
+        success: function (data) {
+            $.each(data, function () {
+                $.each(this, function () {
+                    if (typeof this !== 'undefined') {
+                        $("#sector").append('<option value="' + this + '">'
+                            + this.toString().split(' ').slice(0, 4).join(' ')
+                            + '</option>'
+                        );
+                    }
+                });
+            });
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status);
+            console.log(thrownError);
+        }
+    });
+});

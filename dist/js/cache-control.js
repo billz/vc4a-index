@@ -12,8 +12,9 @@ function updateCache() {
 
     const https = require("https");
     const fs = require('fs');
+    const path = require('path');
     const RateLimiter = require('limiter').RateLimiter;
-    const dataPath = '../../data/vc4a-cache.tsv';
+    const dataPath = path.join(__dirname, '..', '..', 'data', 'vc4a-cache.tsv');
 
     // Define VC4A focus countries 
     var vc4aCountries = {

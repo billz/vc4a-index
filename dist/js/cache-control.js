@@ -75,7 +75,7 @@ function updateCache() {
     fs.truncate( dataPath, 0, function(){ console.log('Cache truncated') } );
 
     // Append header
-    fs.appendFile( dataPath, "id\tcountry\ttotalCap\tventures\n", 'utf8', function(err) {
+    fs.appendFile( dataPath, "id\tcountry\ttotalCap\tventuresCount\n", 'utf8', function(err) {
         if (err) console.log(err);
     });
 

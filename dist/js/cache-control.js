@@ -75,7 +75,7 @@ function updateCache() {
     fs.truncate( dataPath, 0, function(){ console.log('Cache truncated') } );
 
     // Append header
-    fs.appendFile( dataPath, "id\tcountry\ttotalCap\n", 'utf8', function(err) {
+    fs.appendFile( dataPath, "id\tcountry\ttotalCap\tventures\n", 'utf8', function(err) {
         if (err) console.log(err);
     });
 
@@ -118,13 +118,18 @@ function updateCache() {
                                 for ( ventures in json ) {
                                     for ( item in json[ventures] ) {
                                         var capital = json[ventures][item].capital;
-                                        for ( round in capital ) {
-                                            var amount = capital[round]['amount'];
-                                            total += Number( amount );
+                                        if ( typeof capital !== 'undefined' ) {
+                                            for ( round in capital ) {
+                                                var amount = capital[round]['amount'];
+                                                if ( typeof amount !== 'undefined' ) {
+                                                    total += Number( capital[round]['amount'] );
+                                                    venturesCount++;
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                                var dataRow = id + '\t' + country + '\t' + total + '\n';
+                                var dataRow = id + '\t' + country + '\t' + total + '\t' + venturesCount + '\n' ;
 
                                 // Append result to cache
                                 fs.appendFile(dataPath, dataRow, 'utf8', function(err) {

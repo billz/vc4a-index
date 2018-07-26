@@ -32,7 +32,6 @@ var g = svg.append("g")
 d3.queue()
     .defer(d3.json, "data/world-110m.v1.json")
     .defer(d3.tsv, "data/world-110m.v1.tsv")
-    .defer(d3.tsv, "data/world-iso_a2.tsv")
     .defer(d3.tsv, "data/vc4a-cache.tsv")
     .await(ready);
 
@@ -55,7 +54,7 @@ function resize() {
     d3.selectAll("path").attr('d', path);
 }
 
-function ready(error, world, countryData, iso_a2Data, financeData) {
+function ready(error, world, countryData, financeData) {
     if (error) throw error;
 
     // Define constants
@@ -63,16 +62,16 @@ function ready(error, world, countryData, iso_a2Data, financeData) {
     const geoIDVariable = 'id';
     const color = d3.scaleQuantile()
         .range([
-            'rgb(197, 225, 196)',
-            'rgb(179, 216, 178)',
-            'rgb(162, 207, 161)',
-            'rgb(145, 198, 144)',
-            'rgb(128, 189, 127)',
-            'rgb(111, 181, 110)',
-            'rgb(94, 172, 93)',
-            'rgb(77, 163, 76)',
-            'rgb(60, 154, 59)',
-            'rgb(43, 146, 42)'
+            'rgb(197,225,196)',
+            'rgb(179,216,178)',
+            'rgb(162,207,161)',
+            'rgb(145,198,144)',
+            'rgb(128,189,127)',
+            'rgb(111,181,110)',
+            'rgb(94,172,93)',
+            'rgb(77,163,76)',
+            'rgb(60,154,59)',
+            'rgb(43,146,42)'
         ]);
 
     var countryById = {},
@@ -81,14 +80,10 @@ function ready(error, world, countryData, iso_a2Data, financeData) {
         vc4aCountries = {},
         countries = topojson.feature(world, world.objects.countries).features;
 
-    // Add countries by name
+    // Add country names, iso_a2 data
     countryData.forEach(function (d) {
         countryById[d.iso_n3] = d.geounit;
-    });
-
-    // Add iso_a2 codes 
-    iso_a2Data.forEach(function (d) {
-        iso_a2ById[d.id] = d.iso_a2;
+        iso_a2ById[d.iso_n3] = d.iso_a2;
     });
 
     // Add vc4a countries, financials by country

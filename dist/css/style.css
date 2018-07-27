@@ -232,6 +232,7 @@ body, .form-label, .infoLabel, .form-control {
 /* Color code VC4A countries */
 .hasData {
   fill: #b7e0ad;
+  cursor: pointer;
 }
 
 .hasData.focused {

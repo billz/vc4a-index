@@ -20,10 +20,10 @@ function updateCache() {
     var vc4aCountries = {
         "108": "Burundi",
         "120": "Cameroon",
-        "140": "Central African Rep",
+        "140": "Central African Republic",
         "148": "Chad",
         "178": "Congo",
-        "180": "Dem. Rep. Congo",
+        "180": "Congo, Democratic Republic of the",
         "204": "Benin",
         "226": "Equatorial Guinea",
         "231": "Ethiopia",
@@ -33,7 +33,7 @@ function updateCache() {
         "270": "Gambia",
         "288": "Ghana",
         "324": "Guinea",
-        "384": "Ivory Coast",
+        "384": "Côte d'Ivoire",
         "404": "Kenya",
         "426": "Lesotho",
         "430": "Liberia",
@@ -47,7 +47,7 @@ function updateCache() {
         "516": "Namibia",
         "562": "Niger",
         "566": "Nigeria",
-        "624": "Guinea Bissau",
+        "624": "Guinea-Bissau",
         "646": "Rwanda",
         "686": "Senegal",
         "694": "Sierra Leone",
@@ -57,12 +57,12 @@ function updateCache() {
         "728": "South Sudan",
         "729": "Sudan",
         "732": "Western Sahara",
-        "748": "Swaziland",
+        "748": "Eswatini",
         "768": "Togo",
         "788": "Tunisia",
         "800": "Uganda",
         "818": "Egypt",
-        "834": "Tanzania",
+        "834": "Tanzania, United Republic of",
         "854": "Burkina Faso",
         "894": "Zambia",
         "-99": "Somaliland",
@@ -94,7 +94,7 @@ function updateCache() {
                 const options = {
                     method: "GET",
                     hostname: "api.vc4a.com",
-                    port: 443,
+                    //port: 443,
                     encoding: null,
                     headers: { 'User-Agent': 'VC4A Cache-control/1.0' },
                     path: "/v1/fundraising/trends.json?status=" + status + "&country=" + encodeURI(country) + "&limit=" + limit
@@ -115,11 +115,11 @@ function updateCache() {
                                 var venturesCount = 0;
 
                                 // Parse capital from json object
-                                for ( ventures in json ) {
-                                    for ( item in json[ventures] ) {
+                                for ( var ventures in json ) {
+                                    for ( var item in json[ventures] ) {
                                         var capital = json[ventures][item].capital;
                                         if ( typeof capital !== 'undefined' ) {
-                                            for ( round in capital ) {
+                                            for ( var round in capital ) {
                                                 var amount = capital[round]['amount'];
                                                 if ( typeof amount !== 'undefined' ) {
                                                     total += Number( capital[round]['amount'] );

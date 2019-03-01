@@ -94,7 +94,7 @@ function updateCache() {
                 const options = {
                     method: "GET",
                     hostname: "api.vc4a.com",
-                    //port: 443,
+                    port: 443,
                     encoding: null,
                     headers: { 'User-Agent': 'VC4A Cache-control/1.0' },
                     path: "/v1/fundraising/trends.json?status=" + status + "&country=" + encodeURI(country) + "&limit=" + limit

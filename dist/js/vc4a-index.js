@@ -298,7 +298,7 @@ function fetchAPIData() {
                 + 'Financing Stage: ' + stageDesc + '<br />'
                 + 'Sector: ' + sectorDesc + '<br />'
                 + 'Total Capital: <b>USD $' + totalCap + '</b><br />'
-                + 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_country%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />'
+                + 'Explore these ventures on <a href="https://vc4a.com/ventures/country/' + country + '/?base_location%5B%5D=' + country + '&mode=fundraising&o=trending&search=1">VC4A.com</a><br /><br />'
                 + 'Get detailed financials and expert analysis with a VC4A <a href="https://vc4a.com/pro/">Pro</a> or <a href="https://vc4a.com/research/">Research</a> account.<br />';
         },
         error: function (xhr, ajaxOptions, thrownError) {
